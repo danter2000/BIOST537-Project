@@ -12,5 +12,13 @@ library(survival)
 library(flexsurv)
 library(msm)
 
+bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
+
+```
+
+```{r EDA}
+
+
+
 ```
 
