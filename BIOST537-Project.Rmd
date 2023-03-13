@@ -64,3 +64,61 @@ plot(sfit_bmt_byFAB, conf.int = F, main="Kaplan-Meier survival estimate",
 
 
 ```
+
+```{r Directive 3}
+
+# Survival Object based on sex subgrouping
+sfit_bmt_byMale <- survfit(s_bmt ~ male,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byMale, conf.int = F, main="Kaplan-Meier survival estimate, by Sex",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+# Survival Object based on CMV subgrouping
+sfit_bmt_byCMV <- survfit(s_bmt ~ cmv,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byCMV, conf.int = F, main="Kaplan-Meier survival estimate, by CMV",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+# Survival Object based on sex subgrouping of donor
+sfit_bmt_byDonerMale <- survfit(s_bmt ~ donormale,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byDonerMale, conf.int = F, main="Kaplan-Meier survival estimate, by Donor Sex",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+# Survival Object based on CMV subgrouping of donor
+sfit_bmt_byDonerCMV <- survfit(s_bmt ~ donorcmv,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byDonerCMV, conf.int = F, main="Kaplan-Meier survival estimate, by Donor CMV",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+# Survival Object based on hospital subgrouping
+sfit_bmt_byHospital <- survfit(s_bmt ~ hospital,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byHospital, conf.int = F, main="Kaplan-Meier survival estimate, by Hospital",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+# Survival Object based on mtx subgrouping
+sfit_bmt_byMTX <- survfit(s_bmt ~ mtx,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byMTX, conf.int = F, main="Kaplan-Meier survival estimate, by MTX",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+```
