@@ -11,14 +11,56 @@ library(tidyverse)
 library(survival)
 library(flexsurv)
 library(msm)
+library(survMisc)
+library(muhaz)
 
 bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
 ```
 
-```{r EDA}
+```{r Directive 1}
 
+# Creating Survival Objects
+s_bmt <- with(bmt_df, Surv(tdfs, deltadfs))
+sfit_bmt <- survfit(s_bmt ~ 1, data = bmt_df, conf.type = "log-log")
 
+# mean follow-up time
+mean(bmt_df$tdfs)
+
+# proportion of censored of observations
+1 - mean(bmt_df$deltadfs)
+
+# Kaplan Meier Plot
+plot(sfit_bmt, conf.int = T,
+     main="Kaplan-Meier survival estimate w/ Median Survival Time",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+abline(v = 481, col = "red")
+
+# Median Survival time, C.I. for median surivival time, and other summary stats
+summary(sfit_bmt)$table
 
 ```
 
+```{r Directive 2}
+
+# Survival Object based on disease subgrouping
+sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
+                               data = bmt_df,
+                               conf.type = "log-log")
+
+plot(sfit_bmt_byDisgroup, main="Kaplan-Meier survival estimate",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2, color = c("red", "blue", "orange"))
+
+# Survival Object based on "When we was FAB" classification
+sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
+                          data = bmt_df,
+                          conf.type = "log-log")
+
+plot(sfit_bmt_byFAB, conf.int = F, main="Kaplan-Meier survival estimate",
+     xlab="Time (in days)", ylab="Survival probability", col="black", 
+     lty="solid", lwd=2)
+
+
+```
