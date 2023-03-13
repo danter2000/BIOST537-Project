@@ -122,3 +122,5 @@ plot(sfit_bmt_byMTX, conf.int = F, main="Kaplan-Meier survival estimate, by MTX"
      lty="solid", lwd=2)
 
 ```
+
+Two of the hospitals appear to be significant, but since each has little data, the power might be low, the SE might be high, and the CI may cross.
