@@ -23,14 +23,24 @@ library(data.table)
 
 bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
+# create age at diagnosis variable in years
+bmt_df$agediagnosis <- bmt_df$age - ((bmt_df$waittime)/365)
+
+# create age at event (death, relapse or censoring) in years
+bmt_df$ageevent <- bmt_df$agediagnosis + ((bmt_df$tdfs)/365)
+
 ```
 
 **Directive 1**
 
 ```{r Directive 1, echo=FALSE}
 
-# Creating Survival Objects
-s_bmt <- with(bmt_df, Surv(tdfs, deltadfs))
+# Creating Survival Object w/ delayed entry
+s_bmt_de <- with(bmt_df, Surv(agediagnosis, ageevent, deltadfs==1))
+
+# Creating Suvival Object w/o delayed entry
+s_bmt <- with(bmt_df, Surv(tdfs, deltadfs == 1))
+
 sfit_bmt <- survfit(s_bmt ~ 1, data = bmt_df, conf.type = "log-log")
 
 # mean follow-up time
@@ -72,7 +82,7 @@ ggsurvplot(sfit_bmt_byDisgroup,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Disease Group")
 
-# For baseline summary statistics
+#table 1: columns = disease groups, rows= baseline characteristics
 bmt_df_dis <- bmt_df %>%
   group_by(disgroup) %>%
   summarise(mean_age = round(mean(age), 3),
@@ -128,7 +138,7 @@ ggsurvplot(sfit_bmt_byFAB,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by FAB Group")
 
-# For baseline summary statistics
+#table 2: columns = FAB classifications, rows = baseline characteristics
 bmt_df_fab <- bmt_df %>%
   group_by(fab) %>%
   summarise(mean_age = round(mean(age), 3),
@@ -295,40 +305,96 @@ ggsurvplot(sfit_bmt_byMTX,
 
 Two of the hospitals appear to be significant, but since each has little data, the power might be low, the SE might be high, and the CI may cross.
 
-#nonparametric survival function
-survfit.bmt <- survfit(s.bmt~1, data=bmt, conf.type=“log-log”)#1. estimate median disease free survival time
-print(survfit.bmt)#2How do patients in different disease groups or in different FAB classifications compare to each other with respect to other available baseline measurements?
-#table 1: columns = disease groups, rows= baseline characteristics
-#table 2: columns = FAB classifications, rows = baseline characteristcs#3 Are any of the measured baseline variables associated with differences in disease-free survival?#4 Is occurrence of aGVHD after transplantation associated with improved disease-free survival?
-summary(coxph(s.bmt ~deltaa + age + cmv + donorcmv + strata(hospital), data=bmt))#Is it associated with a decreased risk of relapse?
-summary(coxph(s.relapse~deltaa + age + cmv + donorcmv, data=bmt))#5 Among the patients who develop aGVHD, are any of the measured baseline factors associated with differences in disease-free survival?
-gvhd <- survfit(s.gvhd ~ mtx,
-                            data = bmt,
-                            conf.type = “log-log”)
-plot(gvhd, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by MTX”,
-     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
-     lty=“solid”, lwd=2)gvhdcmv <- survfit(s.gvhd ~ cmv,
-                data = bmt,
-                conf.type = “log-log”)
-plot(gvhdcmv, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by recipient CMV status”,
-     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
-     lty=“solid”, lwd=2)gvhdhospital <- survfit(s.gvhd ~ hospital,
-                   data = bmt,
-                   conf.type = “log-log”)
-plot(gvhdhospital, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by hospital”,
-     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
-     lty=“solid”, lwd=2)gvhddonorcmv <- survfit(s.gvhd ~ donorcmv,
-                        data = bmt,
-                        conf.type = “log-log”)
-plot(gvhddonorcmv, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by donor CMV status”,
-     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
-     lty=“solid”, lwd=2)#6 Is prophylactic use of methotrexate associated with an increased or decreased risk of developing aGVHD? **incude confounders
-s.gvhd <- with(bmt, Surv(ta, deltaa==1))
-summary(coxph(s.gvhd~mtx + donorcmv + strata(hospital), data=bmt))#Provide an estimate of the survival function of time from transplant until onset of aGVHD separatefor patients either administered methotrexate or not. In doing so, consider the importance of accounting for relevant confounding factors.
-s.gvhdm <- with(bmt, Surv(ta, deltaa==1))
-survfit.gvhdmtx <- survfit(s.gvhdm~mtx, data=bmt, conf.type=“log-log” )
-plot(survfit.gvhdmtx)
-summary(survfit.gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))#7 Is recovery of normal platelet levels associated with improved disease-free survival? - yes
-summary(coxph(s.bmt ~deltap + age + donorcmv + strata(hospital), data=bmt))#Is it associated with a decreased risk of relapse? - no
-s.relapse <- with(bmt, Surv(agediagnosis, ageevent, deltar==1))
-summary(coxph(s.relapse~deltap + age + donorcmv + strata(hospital), data=bmt)
+```{r Directive 4, echo = F}
+
+summary(coxph(s_bmt ~ deltaa + age + cmv + donorcmv + strata(hospital),
+              data=bmt_df))
+
+s_relapse <- with(bmt_df, Surv(tdfs, deltar == 1))
+
+summary(coxph(s_relapse ~ deltaa + age + cmv + donorcmv,
+              data=bmt_df))
+
+```
+
+
+
+```{r Directive 5, echo = F}
+
+s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
+
+gvhd <- survfit(s_gvhd ~ mtx, data = bmt_df, conf.type = "log-log")
+
+ggsurvplot(gvhd, pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by MTX",
+       xlab= "Time (in days)")
+
+gvhdcmv <- survfit(s_gvhd ~ cmv,
+                data = bmt_df,
+                conf.type = "log-log")
+
+ggsurvplot(gvhdcmv, pval = TRUE,
+           pval.coord = c(2100, 1),
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by recipient CMV status",
+       xlab= "Time (in days)")
+
+gvhdhospital <- survfit(s_gvhd ~ hospital,
+                   data = bmt_df,
+                   conf.type = "log-log")
+
+ggsurvplot(gvhdhospital, pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by Hospital",
+       xlab= "Time (in days)")
+
+gvhddonorcmv <- survfit(s_gvhd ~ donorcmv,
+                        data = bmt_df,
+                        conf.type = "log-log")
+
+ggsurvplot(gvhddonorcmv, pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by donor CMV statu",
+       xlab= "Time (in days)")
+
+
+```
+
+
+
+```{r Directive 6, echo = F}
+
+s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
+
+summary(coxph(s_gvhd ~ mtx + donorcmv + strata(hospital), data = bmt_df))
+
+survfit_gvhdmtx <- survfit(s_gvhd ~ mtx, data=bmt_df, conf.type="log-log")
+
+
+ggsurvplot(survfit_gvhdmtx)
+
+summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
+
+```
+
+
+
+```{r Directive 7, echo = F}
+
+summary(coxph(s_bmt ~ deltap + age + donorcmv + strata(hospital),
+              data = bmt_df))
+
+#Is it associated with a decreased risk of relapse? - no
+summary(coxph(s_relapse ~ deltap + age + donorcmv + strata(hospital),
+              data = bmt_df))
+
+```
+
+
