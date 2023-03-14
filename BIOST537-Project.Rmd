@@ -2,7 +2,10 @@
 title: "BIOST537_Project"
 author: "Dante Ramirez, Nada Ali, Jiayu Sun, Machi Kaneko"
 date: '2023-03-13'
-output: pdf_document
+output:
+  pdf_document: 
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -13,6 +16,10 @@ library(flexsurv)
 library(msm)
 library(survMisc)
 library(muhaz)
+library(kableExtra)
+library(pander)
+library(survminer)
+library(data.table)
 
 bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
@@ -31,11 +38,10 @@ mean(bmt_df$tdfs)
 1 - mean(bmt_df$deltadfs)
 
 # Kaplan Meier Plot
-plot(sfit_bmt, conf.int = T,
-     main="Kaplan-Meier survival estimate w/ Median Survival Time",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
-abline(v = 481, col = "red")
+ggsurvplot(sfit_bmt,
+           conf.int = TRUE,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate")
 
 # Median Survival time, C.I. for median surivival time, and other summary stats
 summary(sfit_bmt)$table
@@ -49,19 +55,52 @@ sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byDisgroup, main="Kaplan-Meier survival estimate",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2, color = c("red", "blue", "orange"))
+
+ggsurvplot(sfit_bmt_byDisgroup,
+           pval = TRUE,
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by Disease Group")
+
+
+pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
+
+bmt_df_dir2 <- bmt_df %>%
+  group_by(disgroup) %>%
+  summarise(mean_age = round(mean(age), 3),
+            sd_age = round(sd(age), 3),
+            count_males = sum(male),
+            prop_males = round(sum(male) / length(male), 3),
+            count_females = length(male) - sum(male),
+            prop_females = round((length(male) - sum(male)) / length(male), 3),
+            count_cmv = sum(cmv),
+            prop_cmv = round(sum(cmv) / length(cmv), 3),
+            count_mtx = sum(mtx),
+            prop_mtx = round(sum(mtx) / length(mtx), 3),
+            count_hospital = sum(hospital))
+
+t(bmt_df_dir2)
+
+comp(ten(sfit_bmt_byDisgroup))
+
+pchisq(q = (-1.95081)^2, df=1, lower.tail=FALSE)
 
 # Survival Object based on "When we was FAB" classification
 sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
                           data = bmt_df,
                           conf.type = "log-log")
 
-plot(sfit_bmt_byFAB, conf.int = F, main="Kaplan-Meier survival estimate",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+ggsurvplot(sfit_bmt_byFAB,
+           pval = TRUE,
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by FAB Group")
 
+pander(survdiff(s_bmt ~ fab, data = bmt_df))
+
+comp(ten(sfit_bmt_byFAB))
+
+pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
 
 ```
 
@@ -124,3 +163,41 @@ plot(sfit_bmt_byMTX, conf.int = F, main="Kaplan-Meier survival estimate, by MTX"
 ```
 
 Two of the hospitals appear to be significant, but since each has little data, the power might be low, the SE might be high, and the CI may cross.
+
+#nonparametric survival function
+survfit.bmt <- survfit(s.bmt~1, data=bmt, conf.type=“log-log”)#1. estimate median disease free survival time
+print(survfit.bmt)#2How do patients in different disease groups or in different FAB classifications compare to each other with respect to other available baseline measurements?
+#table 1: columns = disease groups, rows= baseline characteristics
+#table 2: columns = FAB classifications, rows = baseline characteristcs#3 Are any of the measured baseline variables associated with differences in disease-free survival?#4 Is occurrence of aGVHD after transplantation associated with improved disease-free survival?
+summary(coxph(s.bmt ~deltaa + age + cmv + donorcmv + strata(hospital), data=bmt))#Is it associated with a decreased risk of relapse?
+summary(coxph(s.relapse~deltaa + age + cmv + donorcmv, data=bmt))#5 Among the patients who develop aGVHD, are any of the measured baseline factors associated with differences in disease-free survival?
+gvhd <- survfit(s.gvhd ~ mtx,
+                            data = bmt,
+                            conf.type = “log-log”)
+plot(gvhd, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by MTX”,
+     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
+     lty=“solid”, lwd=2)gvhdcmv <- survfit(s.gvhd ~ cmv,
+                data = bmt,
+                conf.type = “log-log”)
+plot(gvhdcmv, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by recipient CMV status”,
+     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
+     lty=“solid”, lwd=2)gvhdhospital <- survfit(s.gvhd ~ hospital,
+                   data = bmt,
+                   conf.type = “log-log”)
+plot(gvhdhospital, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by hospital”,
+     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
+     lty=“solid”, lwd=2)gvhddonorcmv <- survfit(s.gvhd ~ donorcmv,
+                        data = bmt,
+                        conf.type = “log-log”)
+plot(gvhddonorcmv, conf.int = F, main=“Kaplan-Meier GVHD survival estimate, by donor CMV status”,
+     xlab=“Time (in days)“, ylab=“Survival probability”, col=“black”,
+     lty=“solid”, lwd=2)#6 Is prophylactic use of methotrexate associated with an increased or decreased risk of developing aGVHD? **incude confounders
+s.gvhd <- with(bmt, Surv(ta, deltaa==1))
+summary(coxph(s.gvhd~mtx + donorcmv + strata(hospital), data=bmt))#Provide an estimate of the survival function of time from transplant until onset of aGVHD separatefor patients either administered methotrexate or not. In doing so, consider the importance of accounting for relevant confounding factors.
+s.gvhdm <- with(bmt, Surv(ta, deltaa==1))
+survfit.gvhdmtx <- survfit(s.gvhdm~mtx, data=bmt, conf.type=“log-log” )
+plot(survfit.gvhdmtx)
+summary(survfit.gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))#7 Is recovery of normal platelet levels associated with improved disease-free survival? - yes
+summary(coxph(s.bmt ~deltap + age + donorcmv + strata(hospital), data=bmt))#Is it associated with a decreased risk of relapse? - no
+s.relapse <- with(bmt, Surv(agediagnosis, ageevent, deltar==1))
+summary(coxph(s.relapse~deltap + age + donorcmv + strata(hospital), data=bmt)
