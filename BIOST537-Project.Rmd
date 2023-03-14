@@ -25,6 +25,8 @@ bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
 ```
 
+**Directive 1**
+
 ```{r Directive 1, echo=FALSE}
 
 # Creating Survival Objects
@@ -48,6 +50,10 @@ summary(sfit_bmt)$table
 
 ```
 
+**Directive 2**
+
+*Disease Subgrouping*
+
 ```{r Directive 2 part 1, echo=FALSE}
 
 # Survival Object based on disease subgrouping
@@ -61,6 +67,7 @@ pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
 # Kaplan Meier curve
 ggsurvplot(sfit_bmt_byDisgroup,
            pval = TRUE,
+           pval.coord = c(2100, 1),
            conf.int = F,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Disease Group")
@@ -103,6 +110,8 @@ pchisq(q = (-1.95081)^2, df=1, lower.tail=FALSE)
 
 ```
 
+*FAB Subgrouping*
+
 ```{r Directive 2 part 2, echo = F}
 
 # Survival Object based on "When we was FAB" classification
@@ -114,6 +123,7 @@ pander(survdiff(s_bmt ~ fab, data = bmt_df))
 
 ggsurvplot(sfit_bmt_byFAB,
            pval = TRUE,
+           pval.coord = c(2100, 1),
            conf.int = F,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by FAB Group")
@@ -154,6 +164,10 @@ pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
 
 ```
 
+**Directive 3**
+
+*Sex Subgrouping*
+
 ```{r Directive 3 part 1, echo=FALSE}
 
 # Survival Object based on sex subgrouping
@@ -172,6 +186,8 @@ ggsurvplot(sfit_bmt_byMale,
   labs(title = "Kaplan-Meier survival estimate, by Sex")
 
 ```
+
+*CMV Subgrouping*
 
 ```{r Directive 3 part 2, echo = F}
 
@@ -193,6 +209,8 @@ ggsurvplot(sfit_bmt_byCMV,
 
 ```
 
+*Donor Sex Subgrouping*
+
 ```{r Directive 3 part 3, echo = F}
 
 # Survival Object based on sex subgrouping of donor
@@ -211,6 +229,8 @@ ggsurvplot(sfit_bmt_byDonerMale,
   labs(title = "Kaplan-Meier survival estimate, by Donor Sex")
 
 ```
+
+*Donor CMV Subgrouping*
 
 ```{r Directive 3 part 4, echo = F}
 
@@ -231,6 +251,8 @@ ggsurvplot(sfit_bmt_byDonerCMV,
 
 ```
 
+*Hospital Subgrouping*
+
 ```{r Directive 3 part 5, echo = F}
 
 # Survival Object based on hospital subgrouping
@@ -249,6 +271,8 @@ ggsurvplot(sfit_bmt_byHospital,
   labs(title = "Kaplan-Meier survival estimate, by Hospital")
 
 ```
+
+*MTX Subgrouping*
 
 ```{r Directive 3 part 6, echo=F}
 
