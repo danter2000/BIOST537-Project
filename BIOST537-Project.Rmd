@@ -8,7 +8,7 @@ output:
     df_print: paged
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, warning = F, message = F}
 
 library(tidyverse)
 library(survival)
@@ -25,7 +25,7 @@ bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
 ```
 
-```{r Directive 1}
+```{r Directive 1, echo=FALSE}
 
 # Creating Survival Objects
 s_bmt <- with(bmt_df, Surv(tdfs, deltadfs))
@@ -48,7 +48,7 @@ summary(sfit_bmt)$table
 
 ```
 
-```{r Directive 2}
+```{r Directive 2 part 1, echo=FALSE}
 
 # Survival Object based on disease subgrouping
 sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
@@ -56,16 +56,17 @@ sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
                                conf.type = "log-log")
 
 
+pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
+
+# Kaplan Meier curve
 ggsurvplot(sfit_bmt_byDisgroup,
            pval = TRUE,
            conf.int = F,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Disease Group")
 
-
-pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
-
-bmt_df_dir2 <- bmt_df %>%
+# For baseline summary statistics
+bmt_df_dis <- bmt_df %>%
   group_by(disgroup) %>%
   summarise(mean_age = round(mean(age), 3),
             sd_age = round(sd(age), 3),
@@ -77,18 +78,39 @@ bmt_df_dir2 <- bmt_df %>%
             prop_cmv = round(sum(cmv) / length(cmv), 3),
             count_mtx = sum(mtx),
             prop_mtx = round(sum(mtx) / length(mtx), 3),
-            count_hospital = sum(hospital))
+            count_hospital = sum(hospital),
+            mean_donor_age = round(mean(donorage), 3),
+            sd_donor_age = round(sd(donorage), 3),
+            count_donor_males = sum(donormale),
+            prop_donor_males = round(sum(donormale) / length(donormale), 3),
+            count_donor_cmv = sum(donorcmv),
+            prop_donor_cmv = round(sum(donorcmv) / length(donorcmv), 3))
 
-t(bmt_df_dir2)
+# Transposed plot for easier viewing
+bmt_df_dis_t <- transpose(bmt_df_dis)
+colnames(bmt_df_dis_t) <- c("Disease Group 1",
+                             "Disease Group 2",
+                             "Disease Group 3")
+rownames(bmt_df_dis_t) <- colnames(bmt_df_dis)
+bmt_df_dis_t <- bmt_df_dis_t[c(-1),]
 
-comp(ten(sfit_bmt_byDisgroup))
+kable(bmt_df_dis_t)
+
+# For test statistics
+test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
 
 pchisq(q = (-1.95081)^2, df=1, lower.tail=FALSE)
+
+```
+
+```{r Directive 2 part 2, echo = F}
 
 # Survival Object based on "When we was FAB" classification
 sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
                           data = bmt_df,
                           conf.type = "log-log")
+
+pander(survdiff(s_bmt ~ fab, data = bmt_df))
 
 ggsurvplot(sfit_bmt_byFAB,
            pval = TRUE,
@@ -96,69 +118,154 @@ ggsurvplot(sfit_bmt_byFAB,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by FAB Group")
 
-pander(survdiff(s_bmt ~ fab, data = bmt_df))
+# For baseline summary statistics
+bmt_df_fab <- bmt_df %>%
+  group_by(fab) %>%
+  summarise(mean_age = round(mean(age), 3),
+            sd_age = round(sd(age), 3),
+            count_males = sum(male),
+            prop_males = round(sum(male) / length(male), 3),
+            count_females = length(male) - sum(male),
+            prop_females = round((length(male) - sum(male)) / length(male), 3),
+            count_cmv = sum(cmv),
+            prop_cmv = round(sum(cmv) / length(cmv), 3),
+            count_mtx = sum(mtx),
+            prop_mtx = round(sum(mtx) / length(mtx), 3),
+            count_hospital = sum(hospital),
+            mean_donor_age = round(mean(donorage), 3),
+            sd_donor_age = round(sd(donorage), 3),
+            count_donor_males = sum(donormale),
+            prop_donor_males = round(sum(donormale) / length(donormale), 3),
+            count_donor_cmv = sum(donorcmv),
+            prop_donor_cmv = round(sum(donorcmv) / length(donorcmv), 3))
 
-comp(ten(sfit_bmt_byFAB))
+# Transposed plot for easier viewing
+bmt_df_fab_t <- transpose(bmt_df_fab)
+colnames(bmt_df_fab_t) <- c("FAB Classification 1",
+                             "FAB Classification 2")
+rownames(bmt_df_fab_t) <- colnames(bmt_df_fab)
+bmt_df_fab_t <- bmt_df_fab_t[c(-1),]
+
+kable(bmt_df_fab_t)
+
+test_stats_fabgroup <- comp(ten(sfit_bmt_byFAB))
 
 pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
 
 ```
 
-```{r Directive 3}
+```{r Directive 3 part 1, echo=FALSE}
 
 # Survival Object based on sex subgrouping
 sfit_bmt_byMale <- survfit(s_bmt ~ male,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byMale, conf.int = F, main="Kaplan-Meier survival estimate, by Sex",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+# For log-rank test p-value
+pander(survdiff(s_bmt ~ male, data = bmt_df))
+
+ggsurvplot(sfit_bmt_byMale,
+           pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by Sex")
+
+```
+
+```{r Directive 3 part 2, echo = F}
 
 # Survival Object based on CMV subgrouping
 sfit_bmt_byCMV <- survfit(s_bmt ~ cmv,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byCMV, conf.int = F, main="Kaplan-Meier survival estimate, by CMV",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+# For log-rank test p-value
+pander(survdiff(s_bmt ~ cmv, data = bmt_df))
+
+ggsurvplot(sfit_bmt_byCMV,
+           pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by CMV")
+
+
+```
+
+```{r Directive 3 part 3, echo = F}
 
 # Survival Object based on sex subgrouping of donor
 sfit_bmt_byDonerMale <- survfit(s_bmt ~ donormale,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byDonerMale, conf.int = F, main="Kaplan-Meier survival estimate, by Donor Sex",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+# For log-rank test p-value
+pander(survdiff(s_bmt ~ donormale, data = bmt_df))
+
+ggsurvplot(sfit_bmt_byDonerMale,
+           pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by Donor Sex")
+
+```
+
+```{r Directive 3 part 4, echo = F}
 
 # Survival Object based on CMV subgrouping of donor
 sfit_bmt_byDonerCMV <- survfit(s_bmt ~ donorcmv,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byDonerCMV, conf.int = F, main="Kaplan-Meier survival estimate, by Donor CMV",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+# For log-rank test p-value
+pander(survdiff(s_bmt ~ donorcmv, data = bmt_df))
+
+ggsurvplot(sfit_bmt_byDonerCMV,
+           pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by Donor CMV")
+
+```
+
+```{r Directive 3 part 5, echo = F}
 
 # Survival Object based on hospital subgrouping
 sfit_bmt_byHospital <- survfit(s_bmt ~ hospital,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byHospital, conf.int = F, main="Kaplan-Meier survival estimate, by Hospital",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+# For log-rank test p-value
+pander(survdiff(s_bmt ~ hospital, data = bmt_df))
+
+ggsurvplot(sfit_bmt_byHospital,
+           pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by Hospital")
+
+```
+
+```{r Directive 3 part 6, echo=F}
 
 # Survival Object based on mtx subgrouping
 sfit_bmt_byMTX <- survfit(s_bmt ~ mtx,
                                data = bmt_df,
                                conf.type = "log-log")
 
-plot(sfit_bmt_byMTX, conf.int = F, main="Kaplan-Meier survival estimate, by MTX",
-     xlab="Time (in days)", ylab="Survival probability", col="black", 
-     lty="solid", lwd=2)
+# For log-rank test p-value
+pander(survdiff(s_bmt ~ mtx, data = bmt_df))
+
+ggsurvplot(sfit_bmt_byMTX,
+           pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate, by MTX")
 
 ```
 
