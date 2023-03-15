@@ -138,8 +138,6 @@ kable(bmt_df_dis_t)
 # For test statistics
 test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
 
-pchisq(q = (-1.95081)^2, df=1, lower.tail=FALSE)
-
 ```
 
 *FAB Subgrouping*
@@ -400,7 +398,11 @@ summary(coxph(s_gvhd ~ mtx + donorcmv + strata(hospital), data = bmt_df))
 survfit_gvhdmtx <- survfit(s_gvhd ~ mtx, data=bmt_df, conf.type="log-log")
 
 
-ggsurvplot(survfit_gvhdmtx)
+ggsurvplot(survfit_gvhdmtx,  pval = TRUE,
+           pval.coord = c(2100, 1),
+           conf.int = F,
+           surv.median.line = "hv") + 
+  labs(title = "Kaplan-Meier survival estimate")
 
 summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
 
