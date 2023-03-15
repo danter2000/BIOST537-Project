@@ -80,6 +80,30 @@ fit_ggamma <- fitparametric(s_bmt, dist = "gengamma")
 # p-value from likelihood ratio test comparing the weibull to ggamma
 1 - pchisq(2 * (fit_ggamma$loglik - fit_weibull$loglik), df=1)
 
+bmt_df_summary <- bmt_df %>%
+  summarise(mean_age = round(mean(age), 3),
+            sd_age = round(sd(age), 3),
+            count_males = sum(male),
+            prop_males = round(sum(male) / length(male), 3),
+            count_females = length(male) - sum(male),
+            prop_females = round((length(male) - sum(male)) / length(male), 3),
+            count_cmv = sum(cmv),
+            prop_cmv = round(sum(cmv) / length(cmv), 3),
+            count_mtx = sum(mtx),
+            prop_mtx = round(sum(mtx) / length(mtx), 3),
+            count_hospital = sum(hospital),
+            mean_donor_age = round(mean(donorage), 3),
+            sd_donor_age = round(sd(donorage), 3),
+            count_donor_males = sum(donormale),
+            prop_donor_males = round(sum(donormale) / length(donormale), 3),
+            count_donor_cmv = sum(donorcmv),
+            prop_donor_cmv = round(sum(donorcmv) / length(donorcmv), 3))
+
+# Transposed plot for easier viewing
+bmt_df_summary_t <- transpose(bmt_df_summary)
+
+kable(bmt_df_summary)
+
 ```
 
 **Directive 2**

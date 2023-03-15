@@ -13,7 +13,7 @@ header-includes: |
   \floatplacement{figure}{H}
   \floatplacement{table}{H}
 ---
-\fontsize{11}{16}
+\fontsize{11}{14}
 \selectfont
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE, include=FALSE}
@@ -50,7 +50,11 @@ To test the survival time and onset time differences between groups, we will be 
 
 ## Descriptive Statistics
 
+This data set includes 137 patients, of which 39% are censored for our chosen terminating event of death or relapse of disease. The mean age is approximately 28 years old, and there are 58.4% males in the data set. 49.6% of our patients have positive cytomegalovirus (CMV) immune status, while 29.2% report prophylactic use of methotrexate (MTX). We also collected similar biomarker predictors on our donor sample, and for the same covariates of mean donor age, proportion male, and proportion CMV status, we measured ~ 28 years old, 64.2%, and 42.3% respectively. 
 
+When attempting to *estimate the disease-free survival time for patients enrolled in this study*, we first plotted *(figure 1)* the non-parametric Kaplan-Meier estimator in an attempt to gain knowledge of the underlying shape of our data. The estimated median survival time was **481 [363, 748] days**. The curve made us hopeful to use a parametric estimator. We began with a Weibull and generalized gamma estimate, which we plotted *(figure 2)* in conjunction with the Kaplan-Meier to eye-test it's effectiveness at modeling the data. Using a likelihood ratio test, we can empirically answer if the Weibull is an appropriate simplification of the generalized gamma, in which case we will use the Weibull's parameter estimates.
+
+The LRT test statistic can be computed as 2 × (1114.92 − 1114.36) ≈ 1.12
 
 ## Proportional Hazards
 
@@ -58,15 +62,11 @@ To test the survival time and onset time differences between groups, we will be 
 
 ## Limitations
 
-
-
-# Tables and Figures
-
-
-
 # References 
 
 Thiese MS, Ronna B, Ott U. P value interpretations and considerations. J Thorac Dis. 2016 Sep;8(9):E928-E931. doi: 10.21037/jtd.2016.08.16. PMID: 27747028; PMCID: PMC5059270.
+
+# Tables and Figures
 
 ```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
