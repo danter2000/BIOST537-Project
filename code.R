@@ -1,15 +1,3 @@
----
-title: "BIOST537_Project"
-author: "Dante Ramirez, Nada Ali, Jiayu Sun, Machi Kaneko"
-date: '2023-03-13'
-output:
-  pdf_document: null
-  html_document:
-    df_print: paged
-  word_document: default
----
-
-```{r setup, include=FALSE, warning = F, message = F}
 
 library(tidyverse)
 library(survival)
@@ -32,11 +20,6 @@ bmt_df$agediagnosis <- bmt_df$age - ((bmt_df$waittime)/365)
 # create age at event (death, relapse or censoring) in years
 bmt_df$ageevent <- bmt_df$agediagnosis + ((bmt_df$tdfs)/365)
 
-```
-
-**Directive 1**
-
-```{r Directive 1, echo=FALSE}
 
 # Creating Survival Object w/ delayed entry
 s_bmt_de <- with(bmt_df, Surv(agediagnosis, ageevent, deltadfs==1))
@@ -58,16 +41,16 @@ mean(bmt_df$tdfs)
 
 # Kaplan Meier Plot
 km_dir1 <- ggsurvplot(sfit_bmt,
-           conf.int = TRUE,
-           surv.median.line = "hv") + 
+                      conf.int = TRUE,
+                      surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate")
 
 weibull_dir1_plot <- ggflexsurvplot(sfit_weibull, conf.int = F,
-           surv.median.line = "hv") + 
+                                    surv.median.line = "hv") + 
   labs(title = "Weibull Estimate w/ Kaplan-Meier Survival Estimate")
 
 ggamma_dir1_plot <- ggflexsurvplot(sfit_gg, conf.int = F,
-           surv.median.line = "hv") + 
+                                   surv.median.line = "hv") + 
   labs(title = "GGamma Estimate w/ Kaplan-Meier Survival Estimate")
 
 # Median Survival time, C.I. for median surivival time, and other summary stats
@@ -80,13 +63,6 @@ fit_ggamma <- fitparametric(s_bmt, dist = "gengamma")
 # p-value from likelihood ratio test comparing the weibull to ggamma
 1 - pchisq(2 * (fit_ggamma$loglik - fit_weibull$loglik), df=1)
 
-```
-
-**Directive 2**
-
-*Disease Subgrouping*
-
-```{r Directive 2 part 1, echo=FALSE}
 
 # Survival Object based on disease subgrouping
 sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
@@ -98,10 +74,10 @@ pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
 
 # Kaplan Meier curve
 disgroup_dir2_plot <- ggsurvplot(sfit_bmt_byDisgroup,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                                 pval = TRUE,
+                                 pval.coord = c(2100, 1),
+                                 conf.int = F,
+                                 surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Disease Group")
 
 #table 1: columns = disease groups, rows= baseline characteristics
@@ -128,8 +104,8 @@ bmt_df_dis <- bmt_df %>%
 # Transposed plot for easier viewing
 bmt_df_dis_t <- transpose(bmt_df_dis)
 colnames(bmt_df_dis_t) <- c("Disease Group 1",
-                             "Disease Group 2",
-                             "Disease Group 3")
+                            "Disease Group 2",
+                            "Disease Group 3")
 rownames(bmt_df_dis_t) <- colnames(bmt_df_dis)
 bmt_df_dis_t <- bmt_df_dis_t[c(-1),]
 
@@ -137,12 +113,6 @@ kable(bmt_df_dis_t)
 
 # For test statistics
 test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
-
-```
-
-*FAB Subgrouping*
-
-```{r Directive 2 part 2, echo = F}
 
 # Survival Object based on "When we was FAB" classification
 sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
@@ -152,10 +122,10 @@ sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
 pander(survdiff(s_bmt ~ fab, data = bmt_df))
 
 FAB_dir2_plot <- ggsurvplot(sfit_bmt_byFAB,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                            pval = TRUE,
+                            pval.coord = c(2100, 1),
+                            conf.int = F,
+                            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by FAB Group")
 
 #table 2: columns = FAB classifications, rows = baseline characteristics
@@ -182,7 +152,7 @@ bmt_df_fab <- bmt_df %>%
 # Transposed plot for easier viewing
 bmt_df_fab_t <- transpose(bmt_df_fab)
 colnames(bmt_df_fab_t) <- c("FAB Classification 1",
-                             "FAB Classification 2")
+                            "FAB Classification 2")
 rownames(bmt_df_fab_t) <- colnames(bmt_df_fab)
 bmt_df_fab_t <- bmt_df_fab_t[c(-1),]
 
@@ -192,77 +162,54 @@ test_stats_fabgroup <- comp(ten(sfit_bmt_byFAB))
 
 pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
 
-```
 
-**Directive 3**
-
-*Sex Subgrouping*
-
-```{r Directive 3 part 1, echo=FALSE}
 
 # Survival Object based on sex subgrouping
 sfit_bmt_byMale <- survfit(s_bmt ~ male,
-                               data = bmt_df,
-                               conf.type = "log-log")
+                           data = bmt_df,
+                           conf.type = "log-log")
 
 # For log-rank test p-value
 pander(survdiff(s_bmt ~ male, data = bmt_df))
 
 bymale_dir3_plot <- ggsurvplot(sfit_bmt_byMale,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                               pval = TRUE,
+                               pval.coord = c(2100, 1),
+                               conf.int = F,
+                               surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Sex")
 
-```
-
-*CMV Subgrouping*
-
-```{r Directive 3 part 2, echo = F}
 
 # Survival Object based on CMV subgrouping
 sfit_bmt_byCMV <- survfit(s_bmt ~ cmv,
-                               data = bmt_df,
-                               conf.type = "log-log")
+                          data = bmt_df,
+                          conf.type = "log-log")
 
 # For log-rank test p-value
 pander(survdiff(s_bmt ~ cmv, data = bmt_df))
 
 byCMV_dir3_plot <- ggsurvplot(sfit_bmt_byCMV,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                              pval = TRUE,
+                              pval.coord = c(2100, 1),
+                              conf.int = F,
+                              surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by CMV")
 
 
-```
-
-*Donor Sex Subgrouping*
-
-```{r Directive 3 part 3, echo = F}
-
 # Survival Object based on sex subgrouping of donor
 sfit_bmt_byDonerMale <- survfit(s_bmt ~ donormale,
-                               data = bmt_df,
-                               conf.type = "log-log")
+                                data = bmt_df,
+                                conf.type = "log-log")
 
 # For log-rank test p-value
 pander(survdiff(s_bmt ~ donormale, data = bmt_df))
 
 byDonerMale_dir3_plot <- ggsurvplot(sfit_bmt_byDonerMale,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                                    pval = TRUE,
+                                    pval.coord = c(2100, 1),
+                                    conf.int = F,
+                                    surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Donor Sex")
-
-```
-
-*Donor CMV Subgrouping*
-
-```{r Directive 3 part 4, echo = F}
 
 # Survival Object based on CMV subgrouping of donor
 sfit_bmt_byDonerCMV <- survfit(s_bmt ~ donorcmv,
@@ -273,17 +220,13 @@ sfit_bmt_byDonerCMV <- survfit(s_bmt ~ donorcmv,
 pander(survdiff(s_bmt ~ donorcmv, data = bmt_df))
 
 byDonerCMV_dir3_plot <- ggsurvplot(sfit_bmt_byDonerCMV,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                                   pval = TRUE,
+                                   pval.coord = c(2100, 1),
+                                   conf.int = F,
+                                   surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Donor CMV")
 
-```
 
-*Hospital Subgrouping*
-
-```{r Directive 3 part 5, echo = F}
 
 # Survival Object based on hospital subgrouping
 sfit_bmt_byHospital <- survfit(s_bmt ~ hospital,
@@ -294,38 +237,29 @@ sfit_bmt_byHospital <- survfit(s_bmt ~ hospital,
 pander(survdiff(s_bmt ~ hospital, data = bmt_df))
 
 byHosptial_dir3_plot <- ggsurvplot(sfit_bmt_byHospital,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                                   pval = TRUE,
+                                   pval.coord = c(2100, 1),
+                                   conf.int = F,
+                                   surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Hospital")
 
-```
-
-*MTX Subgrouping*
-
-```{r Directive 3 part 6, echo=F}
 
 # Survival Object based on mtx subgrouping
 sfit_bmt_byMTX <- survfit(s_bmt ~ mtx,
-                               data = bmt_df,
-                               conf.type = "log-log")
+                          data = bmt_df,
+                          conf.type = "log-log")
 
 # For log-rank test p-value
-pander(survdiff(s_bmt ~ mtx, data = bmt_df))
+byMTX_dir3_table <- pander(survdiff(s_bmt ~ mtx, data = bmt_df))
 
 byMTX_dir3_plot <- ggsurvplot(sfit_bmt_byMTX,
-           pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                              pval = TRUE,
+                              pval.coord = c(2100, 1),
+                              conf.int = F,
+                              surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by MTX")
 
-```
 
-Two of the hospitals appear to be significant, but since each has little data, the power might be low, the SE might be high, and the CI may cross.
-
-```{r Directive 4, echo = F}
 
 summary(coxph(s_bmt ~ deltaa + age + cmv + donorcmv + strata(hospital),
               data=bmt_df))
@@ -335,41 +269,36 @@ s_relapse <- with(bmt_df, Surv(tdfs, deltar == 1))
 summary(coxph(s_relapse ~ deltaa + age + cmv + donorcmv,
               data=bmt_df))
 
-```
-
-
-
-```{r Directive 5, echo = F}
 
 s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
 
 gvhd <- survfit(s_gvhd ~ mtx, data = bmt_df, conf.type = "log-log")
 
 byMTX_dir5_Plot <- ggsurvplot(gvhd, pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                              pval.coord = c(2100, 1),
+                              conf.int = F,
+                              surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by MTX",
        xlab= "Time (in days)")
 
 gvhdcmv <- survfit(s_gvhd ~ cmv,
-                data = bmt_df,
-                conf.type = "log-log")
+                   data = bmt_df,
+                   conf.type = "log-log")
 
 byCMV_dir5_Plot <- ggsurvplot(gvhdcmv, pval = TRUE,
-           pval.coord = c(2100, 1),
-           surv.median.line = "hv") + 
+                              pval.coord = c(2100, 1),
+                              surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by recipient CMV status",
        xlab= "Time (in days)")
 
 gvhdhospital <- survfit(s_gvhd ~ hospital,
-                   data = bmt_df,
-                   conf.type = "log-log")
+                        data = bmt_df,
+                        conf.type = "log-log")
 
 byHosptial_dir5_Plot <- ggsurvplot(gvhdhospital, pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                                   pval.coord = c(2100, 1),
+                                   conf.int = F,
+                                   surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Hospital",
        xlab= "Time (in days)")
 
@@ -378,18 +307,12 @@ gvhddonorcmv <- survfit(s_gvhd ~ donorcmv,
                         conf.type = "log-log")
 
 byDonorCMV_dir5_Plot <- ggsurvplot(gvhddonorcmv, pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                                   pval.coord = c(2100, 1),
+                                   conf.int = F,
+                                   surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by donor CMV statu",
        xlab= "Time (in days)")
 
-
-```
-
-
-
-```{r Directive 6, echo = F}
 
 s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
 
@@ -399,18 +322,13 @@ survfit_gvhdmtx <- survfit(s_gvhd ~ mtx, data=bmt_df, conf.type="log-log")
 
 
 byMTX_dir6_plot <- ggsurvplot(survfit_gvhdmtx,  pval = TRUE,
-           pval.coord = c(2100, 1),
-           conf.int = F,
-           surv.median.line = "hv") + 
+                              pval.coord = c(2100, 1),
+                              conf.int = F,
+                              surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate")
 
 summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
 
-```
-
-
-
-```{r Directive 7, echo = F}
 
 summary(coxph(s_bmt ~ deltap + age + donorcmv + strata(hospital),
               data = bmt_df))
@@ -419,31 +337,3 @@ summary(coxph(s_bmt ~ deltap + age + donorcmv + strata(hospital),
 summary(coxph(s_relapse ~ deltap + age + donorcmv + strata(hospital),
               data = bmt_df))
 
-```
-
-```{r saveplots, echo = F, eval = F}
-
-# add method to grid.draw
-grid.draw.ggsurvplot <- function(x){
-  survminer:::print.ggsurvplot(x, newpage = FALSE)
-}
-
-ggsave(filename = "Plots/km_dir1_plot.png", km_dir1)
-ggsave(filename = "Plots/weibull_dir1_plot.png", weibull_dir1_plot)
-ggsave(filename = "Plots/ggamma_dir1_plot.png", ggamma_dir1_plot)
-ggsave(filename = "Plots/disgroup_dir2_plot.png", disgroup_dir2_plot)
-ggsave(filename = "Plots/FAB_dir2_plot.png", FAB_dir2_plot)
-ggsave(filename = "Plots/bymale_dir3_plot.png", bymale_dir3_plot)
-ggsave(filename = "Plots/byCMV_dir3_plot.png", byCMV_dir3_plot)
-ggsave(filename = "Plots/byDonerMale_dir3_plot.png", byDonerMale_dir3_plot)
-ggsave(filename = "Plots/byDonerCMV_dir3_plot.png", byDonerCMV_dir3_plot)
-ggsave(filename = "Plots/byHosptial_dir3_plot.png", byHosptial_dir3_plot)
-ggsave(filename = "Plots/byMTX_dir3_plot.png", byMTX_dir3_plot)
-ggsave(filename = "Plots/byMTX_dir5_Plot.png", byMTX_dir5_Plot)
-ggsave(filename = "Plots/byCMV_dir5_Plot.png", byCMV_dir5_Plot)
-ggsave(filename = "Plots/byHosptial_dir5_Plot.png", byHosptial_dir5_Plot)
-ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
-ggsave(filename = "Plots/byMTX_dir6_plot.png", byMTX_dir6_plot)
-ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
-
-```
