@@ -48,6 +48,8 @@ sfit_bmt <- survfit(s_bmt ~ 1, data = bmt_df, conf.type = "log-log")
 
 sfit_weibull <- flexsurvreg(s_bmt ~ 1, dist = "weibull", data = bmt_df)
 
+fitparametric(s_bmt, dist = "weibull")
+
 sfit_gg <- flexsurvreg(s_bmt ~ 1, dist = "gengamma", data = bmt_df)
 
 # mean follow-up time
@@ -76,6 +78,9 @@ summary(sfit_bmt)$table
 # Parametric fits
 fit_weibull <- fitparametric(s_bmt, dist = "weibull")
 fit_ggamma <- fitparametric(s_bmt, dist = "gengamma")
+
+# Log likelihood p-value to compare weibull and gengamma
+1 - pchisq(q = 2*(-650.19 - (-657.77 )), df = 1)
 
 # p-value from likelihood ratio test comparing the weibull to ggamma
 1 - pchisq(2 * (fit_ggamma$loglik - fit_weibull$loglik), df=1)
@@ -324,6 +329,8 @@ byHosptial_dir3_plot <- ggsurvplot(sfit_bmt_byHospital,
            surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Hospital")
 
+byHosptial_dir3_plot
+
 ```
 
 *MTX Subgrouping*
@@ -429,6 +436,13 @@ byMTX_dir6_plot <- ggsurvplot(survfit_gvhdmtx,  pval = TRUE,
   labs(title = "Kaplan-Meier survival estimate")
 
 summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
+
+library(corrplot)
+library(RColorBrewer)
+M <-cor(bmt_df)
+corrplot(M, type="upper", order="hclust",
+         col=brewer.pal(n=8, name="RdYlBu"))
+
 
 ```
 
