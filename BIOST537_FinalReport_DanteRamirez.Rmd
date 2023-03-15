@@ -1,0 +1,65 @@
+---
+title: "Acute Leukemia Report"
+author: "Nada Ali, Machi Kaneko, Dante Ramirez, Jiayu Sun"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: 
+    latex_engine: xelatex
+  word_document: default
+  html_document:
+    df_print: paged
+header-includes: |
+  \usepackage{float}
+  \floatplacement{figure}{H}
+  \floatplacement{table}{H}
+---
+\fontsize{11}{16}
+\selectfont
+
+# Introduction
+
+
+
+# Methods 
+
+## Terminating Event and Time
+
+Our team was tasked with identifying associations and trends in survival times with two separate terminating events. In directives 1-5, where our objectives revolved around disease free survival time, our team identified *deltadfs* as the terminating event of interest. This terminating event is a binary indicator of death or relapse of disease among our patient sample. In directives 6-7, the research question shifted to the developmental risk of acute graft-versus-host disease (aGVHD) in our patient sample, and thus, the binary indicator of aGVHD onset *deltaa* was chosen as our terminating event.
+
+Approaching the data with the research question of disease free survival time in mind, our team decided to classify *tdfs*, the time in days until death, relapse, or censoring, as the time argument when analyzing directives 1-5. The research question of directives 6 and 7 handles the time until onset of acute graft-versus-host disease, and thus *ta*, the time in days until onset of aGVHD was used as the time argument in the respective survival objects.
+
+## Test Statistics
+
+To test the differences in groups, and to determine  the log-rank test statistic was used.
+
+## Significance and Family-wise Error
+
+Given our fairly low clinical sample size of $n = 137$ patients, our tests of significance will have lower power of detecting true differences in groups if they exist. Based on this and observations of significance from Thiese, Ronna, and Ott (Thiese et al. 2016), we deliberately set our significance level to an unconservative $\alpha = .1$. This large significance level allows us to account for our small sample size, in addition, it will allowing us to correct for the family-wise error we will encounter through multiple testing without over-correcting with a practically unrejectable p-value. We chose to correct for family-wise error through a Bonferroni correction. In directives 2 and 3, we run 8 log-rank hypothesis tests of significance. Thus, our family-wise error adjusted significance level of rejection will be $\frac{.1}{8} = .0125$. 
+
+
+## Test Statistics
+
+
+
+# Results and Discussion
+
+
+## Descriptive Statistics
+
+
+
+## Proportional Hazards
+
+
+
+## Limitations
+
+
+
+# Tables and Figures
+
+
+
+# References 
+
+Thiese MS, Ronna B, Ott U. P value interpretations and considerations. J Thorac Dis. 2016 Sep;8(9):E928-E931. doi: 10.21037/jtd.2016.08.16. PMID: 27747028; PMCID: PMC5059270.
