@@ -59,3 +59,85 @@ To test the survival time and onset time differences between groups, we will be 
 # References 
 
 Thiese MS, Ronna B, Ott U. P value interpretations and considerations. J Thorac Dis. 2016 Sep;8(9):E928-E931. doi: 10.21037/jtd.2016.08.16. PMID: 27747028; PMCID: PMC5059270.
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+```{r fig.cap = "Correlation Plots", fig.show='hold',fig.align='center'}
+
+
+```
+
+
