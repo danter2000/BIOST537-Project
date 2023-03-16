@@ -21,6 +21,8 @@ library(kableExtra)
 library(pander)
 library(survminer)
 library(data.table)
+library(mstate)
+library(cmprsk)
 
 bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
@@ -336,6 +338,8 @@ sfit_bmt_byHospital <- survfit(s_bmt ~ hospital,
                                data = bmt_df,
                                conf.type = "log-log")
 
+sfit_bmt_byHospital
+
 # For log-rank test p-value
 pander(survdiff(s_bmt ~ hospital, data = bmt_df))
 
@@ -347,6 +351,8 @@ byHosptial_dir3_plot <- ggsurvplot(sfit_bmt_byHospital,
   labs(title = "Kaplan-Meier survival estimate, by Hospital")
 
 byHosptial_dir3_plot
+
+bmt_df %>% group_by(hospital) %>% summarise(mtx = sum(mtx)) %>% kable()
 
 ```
 
@@ -375,16 +381,45 @@ Two of the hospitals appear to be significant, but since each has little data, t
 
 ```{r Directive 4, echo = F}
 
-summary(coxph(s_bmt ~ deltaa + age + cmv + donorcmv + strata(hospital),
-              data=bmt_df))
+#create long dataset with time-varying GVHD variable
+bmt.tvc <- tmerge(data1=bmt_df, data2=bmt_df, id=id,
+                  dfs=event(tdfs, deltadfs), gvhd.tv=tdc(ta))
 
-s_relapse <- with(bmt_df, Surv(tdfs, deltar == 1))
+#create survival object for disease-free survival with time-varying GVHD variable
+surv.bmt.tv = with(bmt.tvc,
+                   Surv(tstart, tstop, dfs))
 
-summary(coxph(s_relapse ~ deltaa + age + cmv + donorcmv,
-              data=bmt_df))
+summary(coxph(surv.bmt.tv ~ gvhd.tv + age + cmv + donorcmv + strata(hospital),
+              data=bmt.tvc))
+
+#Is it associated with a decreased risk of relapse?
+#create long dataset for relapse with time-varying GVHD variable
+bmtrelapse.tvc <- tmerge(data1 = bmt_df, data2 = bmt_df, id=id,
+                         dfs=event(tdfs, deltar), gvhd.tv=tdc(ta))
+
+#create survival object for relapse with time varying GVHD variable
+surv.relapse.tv = with(bmtrelapse.tvc, Surv(tstart, tstop, dfs))
+
+#competing risk
+attach(bmtrelapse.tvc)
+
+cov.matrix <- model.matrix(~gvhd.tv + age + cmv + donorcmv + strata(hospital))
+
+head(cov.matrix)
+
+#relapse risk: relapse
+result.relapse.crr <- crr((bmtrelapse.tvc$tstop-bmtrelapse.tvc$tstart),
+                          deltar, cov1 = cov.matrix[, -1], failcode=1)
+
+summary(result.relapse.crr)
+
+#competing risk: death
+result.death.crr <- crr((bmt.tvc$tstop - bmt.tvc$tstart), deltadfs,
+                        cov1=cov.matrix[,-1], failcode=1)
+
+summary(result.death.crr)
 
 ```
-
 
 
 ```{r Directive 5, echo = F}
@@ -435,8 +470,6 @@ byDonorCMV_dir5_Plot <- ggsurvplot(gvhddonorcmv, pval = TRUE,
 
 ```
 
-
-
 ```{r Directive 6, echo = F}
 
 s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
@@ -462,8 +495,6 @@ corrplot(M, type="upper", order="hclust",
 
 
 ```
-
-
 
 ```{r Directive 7, echo = F}
 
@@ -500,6 +531,5 @@ ggsave(filename = "Plots/byHosptial_dir5_Plot.png", byHosptial_dir5_Plot)
 ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
 ggsave(filename = "Plots/byMTX_dir6_plot.png", byMTX_dir6_plot)
 ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
-save_kable(kabledis_dir2_table, file = "Plots/kabledis_dir2_plot.png")
 
 ```

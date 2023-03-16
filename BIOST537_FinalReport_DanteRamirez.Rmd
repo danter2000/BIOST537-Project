@@ -86,7 +86,15 @@ Looking at our plot *(figure 4)* we see FAB Classification 0 has the highest med
 
 ## Directive 3
 
-In *figures 5-10*, our team plotted every meaningful factor grouping to identify potential associated differences in disease-free survival. We observed two different trends, 
+In *figures 5-10*, our team plotted every meaningful factor grouping to identify potential associated differences in disease-free survival. We observed two different trends. In the all but one of the figures *(figures 6, 7, 7, 8, and 10)*, using the logrank test of differences in disease free survival, we measured p-values between the range of **.092 to .97**. Many of these p-values are much larger than our family-wise error rate corrected significance level $\alpha = .0125$. So, in an empirical and purely exploratory sense we won't assume any association between disease free survival time and *patient sex, patient CMV status, patient MTX status, donor sex, and donor CMV status*.
+
+The one grouping which did result in significant p-values based on the logrank test of differences in disease free survival was *figure 9*, where we grouped by the four different hospitals. This grouping resulted in a **p-value of .0034**, well below our our family-wise error rate corrected significance level. There is a notable contrast in sample sizes between these four groups, with Hospital 1, Hospital 2, Hospital 3, and Hospital 4 having sample sizes of $n = 76, 17, 23, \text{ and }21$ respectively. Additionally, we have major inequities in the amount of censored observations, with $50, 13, 13, \text{ and } 7$ for the four respective hospitals. This explains why there is no median survival time observed for Hospital 4, as not enough event have occured in our data set for that particular subgroup. For the remaining hospitals, we have very similar median survival times at **467 [381, 667] days** and **466 [129, NA] days** for Hospitals 1 and 3 respectively. Hospital 2 by far had the lowest median survival time at **107 [53, 332] days**. Perhaps the variable *hospital* is a proxy for location, seeing as there four hospitals were based in different locations, and perhaps this explain these sharp contrasts in sample size, events, and survival time. Additionally, we see that Hospitals 1 and 4 did not have any patients adminstered with MTX, which could also be telling of interaction between these two variables on the association with disease free survival time. 
+
+```{r echo = F}
+
+bmt_df %>% group_by(hospital) %>% summarise(mtx = sum(mtx)) %>% kable()
+
+```
 
 ## Directive 4
 
@@ -100,9 +108,11 @@ The hazard of relapse is estimated to be approximately **39.8% lower** in patien
 
 ## Directive 5
 
-We analyzed the baseline characteristics and disease-free survival in the subset of the study population who developed acute GVHD in the observation period. We fit a survival object to this subpopulation and used log-rank tests to determine if baseline characteristics, including patient sex, donor sex, patient CMV immune status, donor CMV immune status, disease group, FAB classification, methotrexate prophylaxis or hospital, were associated with differences in disease-free survival. 
+We analyzed the baseline characteristics and disease-free survival in the subset of the study population who developed acute GVHD in the observation period. We fit a survival object to this subpopulation and used log-rank tests to determine if baseline characteristics, including patient sex, donor sex, patient CMV immune status, donor CMV immune status, disease group, FAB classification, methotrexate prophylaxis or hospital, were associated with differences in disease-free survival.
 
 None of the following baseline characteristics were found to have a statistically significant association with disease-free survival among patients who developed aGVHD following transplant at a family-wise adjusted significance level of 𝛼=.0125: patient sex **(p=0.6)**, donor sex **(p=0.7)**, patient CMV status **(p=0.6)**, donor CMV status **(p=0.2)**, disease group **(p=0.08)**, FAB classification **(p=0.4)**, methotrexate prophylaxis **(p=0.3)** and hospital **(p=0.1)**. 
+
+We noted that among the subgroup of patients who developed acute GVHD, death and relapse events occurred early in the time course. We also noted that many of the Kaplan-Meier curves cross early in the time course. Given these observations, we recognized that the proportional hazards assumption was not met, and that use of the log-rank test may not appropriately test the difference in disease-free survival based on the baseline characteristics. Use of the Gehan-Breslow-Wilcoxon test was considered. While this test does not require consistent hazard ratios, the assumption that one group has a consistently higher hazard must hold. This was not deemed appropriate as most survival curves cross. In future studies the Fleming Harrington test could be applied.
 
 ## Directive 7
 
@@ -112,7 +122,9 @@ None of the following baseline characteristics were found to have a statisticall
 
 
 
-## Limitations
+## Limitations and Conclusion
+
+Our exploratory analysis suggests that survival among patients who undergo allogeneic transplantation for acute leukemia is at least 1 year. When evaluating differences in measured baseline variables between disease groups, we found that there was an association between the hospital at which the patient was recruited and their disease group. We accounted for this by stratifying our cox proportional hazards models of survival by hospital. Additionally, we accounted for multiple comparisons by utilizing a Bonferroni correction and found no association between disease free survival and any of the measured baseline variables. We also found that aGVHD and recovery of normal platelet levels are not associated with improved disease free survival or decreased risk of relapse, suggesting that they are not important prognostic events. Additionally, our data suggest that use of prophylactic methotrexate is not associated with the risk of developing aGVHD. Two limitations of this analysis are the small sample size of our study population and the large proportion of censored survival times. These two limitations may make it challenging to identify confounding variables which would alter our unadjusted hazard estimates. To address this, future work could include recruitment of a larger sample size and longer follow up time. 
 
 # References 
 
