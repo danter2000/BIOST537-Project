@@ -476,7 +476,7 @@ survdiff(formula=s.dfsgvhd~donorcmv, data=bmt_df[bmt_df$deltaa==1, ])
 bydonorcmv_dir5_plot <- ggsurvplot(survfit.bydonorcmv,
            conf.int = F,
            xlab = "Time (in days)") + 
-  labs(title = "Kaplan-Meier GVHD survival estimate,",
+  labs(title = "Kaplan-Meier GVHD survival est,",
        subtitle = "by donor CMV status in patients with aGVHD")
 
 #by disease group
@@ -579,7 +579,7 @@ ggsave(filename = "Plots/bydis_dir5_Plot.png", bydis_dir5_plot)
 ggsave(filename = "Plots/byfab_dir5_Plot.png", byfab_dir5_plot)
 ggsave(filename = "Plots/bymtx_dir5_Plot.png", bymtx_dir5_plot)
 ggsave(filename = "Plots/byhospital_dir5_Plot.png", byhospital_dir5_plot)
-ggsave(filename = "Plots/byMTX_dir6_plot.png", byMTX_dir6_plot)
+
 
 
 ```
