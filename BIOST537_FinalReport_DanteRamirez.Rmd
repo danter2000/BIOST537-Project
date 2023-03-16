@@ -100,9 +100,9 @@ bmt_df %>% group_by(hospital) %>% summarise(mtx = sum(mtx)) %>% kable()
 
 In order to characterize the relationship between occurrence of aGVHD after transplantation and disease-free survival, we fit the following cox-proportional hazards model adjusting for age, patient cmv and donor cmv status stratifying by hospital. 
 
-$h(t| \text{gvhd.tv(t)}, \text{age}, \text{cmv}, \text{donorcmv}, \text{hospital}) = h_0(t |  \text{hospital}) e^{β_1gvhd.tv(t) + β_2age + β_3cmv + β_4donorcmv}$
+$h(t| \text{gvhd.tv(t)}, \text{age}, \text{cmv}, \text{donorcmv}, \text{hospital}) = h_0(t |  \text{hospital}) \times e^{β_1gvhd.tv(t) + β_2age + β_3cmv + β_4donorcmv}$
 
-where gvhd.tv(t) is the time-varying covariate for aGVHD status at time t and $h0(t|\text{hospital})$ denotes the distinct baseline hazard function at time t corresponding to each hospital. Because in this model we estimate the hazard of the composite outcome of relapse and death, we did not perform competing-risk analysis.
+where $gvhd.tv(t)$ is the time-varying covariate for aGVHD status at time t and $h0(t|\text{hospital})$ denotes the distinct baseline hazard function at time t corresponding to each hospital. Because in this model we estimate the hazard of the composite outcome of relapse and death, we did not perform competing-risk analysis.
 
 When estimating the association of aGVHD and risk of relapse, we employed the Fine-Gray model to account for death as a competing risk to risk of relapse. We used the crr function in R. 
 
@@ -120,17 +120,38 @@ None of the following baseline characteristics were found to have a statisticall
 
 We noted that among the subgroup of patients who developed acute GVHD, death and relapse events occurred early in the time course. We also noted that many of the Kaplan-Meier curves cross early in the time course. Given these observations, we recognized that the proportional hazards assumption was not met, and that use of the log-rank test may not appropriately test the difference in disease-free survival based on the baseline characteristics. Use of the Gehan-Breslow-Wilcoxon test was considered. While this test does not require consistent hazard ratios, the assumption that one group has a consistently higher hazard must hold. This was not deemed appropriate as most survival curves cross. In future studies the Fleming Harrington test could be applied.
 
-## Directive 7
-
-
-
 ## Directive 6
 
+To give a non-parametric estimate of the survival function of time from transplant until onset of aGVHD separately for patients either administered methotrexate or not, the Kaplan-Meier estimators are plotted for the two groups with 95% confidence interval. To investigate whether the prophylactic use of methotrexate is associated with an increased or decreased risk of developing aGVHD, we fit the following Cox proportional hazards model adjusting for hospitals as a potential confounder (the hospital variable is treated as a categorical variable):
+
+$h(t|\text{methotrexate}, \text{hospital}) = h_0(t)\times e^{β_1methotrexate + β_2hospital2 + β_3hospital3 + β_4hospital4}$
+
+The hospital variable is adjusted because we notice that the administration of methotrexate totally depends on hospitals in such a way that none of the patients in hospital 1 and 4 were given  methotrexate while all of the patients in hospital 2 and 3 were given methotrexate. Therefore, the administration of methotrexate is decided according to different hospitals but seems not to be associated with other covariates.
+
+From the Kaplan-Meier estimators of the survival function of time from transplant until onset of aGVHD separately for patients either administered methotrexate or not, it seems that there is no significant difference between these two groups of patients in terms of the risk of developing aGVHD, considering that the confidence intervals of their curves are overlapping a lot.
+
+We estimate that the hazard of developing aGVHD for individuals administered methotrexate is 32.6% lower than that for individuals not administered methotrexate but in the same hospital (95% CI: 80.6% lower to 134.6% higher). Based on the Wald test at the 0.1 significance level (p = 0.535), We don’t have enough evidence to reject the null hypothesis that there is no association between risk of developing aGVHD and the administration of methotrexate, adjusted for hospitals. We conclude that there is no evidence to suggest that the administration of methotrexate is associated with the risk of developing aGVHD.
+
+One limitation of our analysis is that the group-specific survival functions cross especially at an earlier time according to the Kaplan-Meier estimators, therefore the Cox proportional hazard model may not be very powerful.
+
+## Directive 7
+
+To investigate whether the recovery of normal platelet levels is associated with improved disease-free survival, we fit the following Cox proportional hazards model treating the recovery of normal platelet levels as a time-varying variable and adjusting for age, patient cmv, donor cmv and hospitals as potential confounders:
+
+$h(t|\text{tp.tv(t)}, \text{age}, \text{cmv}, \text{donorcmv}, \text{hospital}) = h0(t|\text{hospital}) \times e^{β_1tp.tv(t) + β_2age + β_3cmv + β_4donorcmv}$
+
+where $tp.tv(t)$ is the time-varying covariate for the recovery of normal platelet levels at time t, and h0(t|hospital) denotes the distinct baseline hazard function at time t corresponding to each hospital.
+
+To investigate whether the recovery of normal platelet levels is associated with a decreased risk of relapse, we fit a Cox proportional hazards model which is similar to that in the previous question except that the outcome is relapse instead of disease-free survival.
+
+We estimate that the hazard of death or relapse for individuals who have an recovery of normal platelet levels is **69.1% lower** than that for individuals who don’t have a recovery of normal platelet levels, adjusted for age, patient cmv, donor cmv and hospitals **(95% CI: 37.5% - 84.7% lower)**. Based on the Wald test at the 0.1 significance level **(p = 0.00108)**, we have enough evidence to reject the null hypothesis that there is no association between recovery of normal platelet levels and relapse or death, adjusted for age, patient cmv, donor cmv and hospitals. We conclude that recovery of normal platelet levels is associated with relapse or death.
+
+We estimate that the hazard of relapse for individuals who have an recovery of normal platelet levels is **30.9% lower** than that for individuals who don’t have a recovery of normal platelet levels, adjusted for age, patient cmv, donor cmv and hospitals **(95% CI: 80.6% lower - 146.3% higher)**. Based on the Wald test at the 0.1 significance level **(p = 0.569)**, we don’t have enough evidence to reject the null hypothesis that there is no association between recovery of normal platelet levels and relapse, adjusted for age, patient cmv, donor cmv and hospitals. We conclude that recovery of normal platelet levels is not associated with relapse.
 
 
 ## Limitations and Conclusion
 
-Our exploratory analysis suggests that survival among patients who undergo allogeneic transplantation for acute leukemia is at least 1 year. When evaluating differences in measured baseline variables between disease groups, we found that there was an association between the hospital at which the patient was recruited and their disease group. We accounted for this by stratifying our cox proportional hazards models of survival by hospital. Additionally, we accounted for multiple comparisons by utilizing a Bonferroni correction and found no association between disease free survival and any of the measured baseline variables. We also found that aGVHD and recovery of normal platelet levels are not associated with improved disease free survival or decreased risk of relapse, suggesting that they are not important prognostic events. Additionally, our data suggest that use of prophylactic methotrexate is not associated with the risk of developing aGVHD. Two limitations of this analysis are the small sample size of our study population and the large proportion of censored survival times. These two limitations may make it challenging to identify confounding variables which would alter our unadjusted hazard estimates. To address this, future work could include recruitment of a larger sample size and longer follow up time. 
+Our exploratory analysis suggests that survival among patients who undergo allogeneic transplantation for acute leukemia is at least 1 year. When evaluating differences in measured baseline variables between disease groups, we found that there was an association between the hospital at which the patient was recruited and their disease group. We accounted for this by stratifying our cox proportional hazards models of survival by hospital. Additionally, we accounted for multiple comparisons by utilizing a Bonferroni correction and found no association between disease free survival and any of the measured baseline variables. We also found that development of aGVHD was not associated with improved disease-free survival or decreased risk of relapse, suggesting that aGVHD is not an important prognostic event. While we found that recovery of normal platelet level was not associated with risk of relapse, evidence suggested that it is associated with disease-free survival. Additionally, our data suggest that use of prophylactic methotrexate is not associated with the risk of developing aGVHD. Two limitations of this analysis are the small sample size of our study population and the large proportion of censored survival times. These two limitations may make it challenging to identify confounding variables which would alter our unadjusted hazard estimates. To address this, future work could include recruitment of a larger sample size and longer follow up time. 
 
 # References 
 
