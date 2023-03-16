@@ -128,7 +128,19 @@ Our exploratory analysis suggests that survival among patients who undergo allog
 
 # References 
 
-Thiese MS, Ronna B, Ott U. P value interpretations and considerations. J Thorac Dis. 2016 Sep;8(9):E928-E931. doi: 10.21037/jtd.2016.08.16. PMID: 27747028; PMCID: PMC5059270.
+* Thiese MS, Ronna B, Ott U. P value interpretations and considerations. J Thorac Dis. 2016;8(9):E928-E931. doi:10.21037/jtd.2016.08.16
+
+* Marubini E, Valsecchi MG. Analysing Survival Data from Clinical Trials and Observational Studies. John Wiley & Sons; 2004.
+
+* Moore DF. Applied Survival Analysis Using R. Springer International Publishing; 2016. doi:10.1007/978-3-319-31245-3
+
+* Collett D. Modelling Survival Data in Medical Research. 3rd ed. Chapman and Hall/CRC; 2015. doi:10.1201/b18041
+
+* Breslow NE, Day NE. Statistical Methods in Cancer Research: The Design and Analysis of Cohort Studies. IARC; 1987.
+
+* Kleinbaum DG, Klein M. Survival Analysis: A Self-Learning Text. Springer; 2012. doi:10.1007/978-1-4419-6646-9
+
+* Klein JP, Moeschberger ML. Survival Analysis: Techniques for Censored and Truncated Data. Springer; 2003. doi:10.1007/b97377
 
 # Tables and Figures
 

@@ -424,68 +424,114 @@ summary(result.death.crr)
 
 ```{r Directive 5, echo = F}
 
-s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
+#survival object for those who develop aGVHD
+s.dfsgvhd <- with(bmt_df[bmt_df$deltaa==1, ], Surv(tdfs, deltadfs==1))
 
-gvhd <- survfit(s_gvhd ~ mtx, data = bmt_df, conf.type = "log-log")
+#by patient sex
+survfit.bymale <- survfit(s.dfsgvhd ~ male,
+                          data = bmt_df[bmt_df$deltaa==1, ],
+                          conf.type = "log-log")
 
-byMTX_dir5_Plot <- ggsurvplot(gvhd, pval = TRUE,
-           pval.coord = c(2100, 1),
+survdiff(formula=s.dfsgvhd~male, data=bmt_df[bmt_df$deltaa==1, ])
+
+bymale_dir5_plot <- ggsurvplot(survfit.bymale,
            conf.int = F,
-           surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by MTX",
-       xlab= "Time (in days)")
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by sex in patients with aGVHD")
 
-gvhdcmv <- survfit(s_gvhd ~ cmv,
-                data = bmt_df,
-                conf.type = "log-log")
+#by donor sex
+survfit.bydonormale <- survfit(s.dfsgvhd ~ donormale,
+                          data = bmt_df[bmt_df$deltaa==1, ],
+                          conf.type = "log-log")
 
-byCMV_dir5_Plot <- ggsurvplot(gvhdcmv, pval = TRUE,
-           pval.coord = c(2100, 1),
-           surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by recipient CMV status",
-       xlab= "Time (in days)")
+survdiff(formula=s.dfsgvhd~donormale, data=bmt_df[bmt_df$deltaa==1, ])
 
-gvhdhospital <- survfit(s_gvhd ~ hospital,
-                   data = bmt_df,
-                   conf.type = "log-log")
-
-byHosptial_dir5_Plot <- ggsurvplot(gvhdhospital, pval = TRUE,
-           pval.coord = c(2100, 1),
+bydonormale_dir5_plot <- ggsurvplot(survfit.bydonormale,
            conf.int = F,
-           surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by Hospital",
-       xlab= "Time (in days)")
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by donor sex in patients with aGVHD")
 
-gvhddonorcmv <- survfit(s_gvhd ~ donorcmv,
-                        data = bmt_df,
+#by cmv
+survfit.bycmv <- survfit(s.dfsgvhd ~ cmv,
+                         data = bmt_df[bmt_df$deltaa==1, ],
+                         conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~cmv, data=bmt_df[bmt_df$deltaa==1, ])
+
+bycmv_dir5_plot <- ggsurvplot(survfit.bycmv,
+           conf.int = F,
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier disease-free survival est,",
+       subtitle = "by patient CMV status in patients who develop aGVHD")
+
+#by donorcmv
+survfit.bydonorcmv <- survfit(s.dfsgvhd ~ donorcmv,
+                              data = bmt_df[bmt_df$deltaa==1, ],
+                              conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~donorcmv, data=bmt_df[bmt_df$deltaa==1, ])
+
+bydonorcmv_dir5_plot <- ggsurvplot(survfit.bydonorcmv,
+           conf.int = F,
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival estimate,",
+       subtitle = "by donor CMV status in patients with aGVHD")
+
+#by disease group
+survfit.bydg <- survfit(s.dfsgvhd ~ disgroup,
+                        data = bmt_df[bmt_df$deltaa==1, ],
                         conf.type = "log-log")
 
-byDonorCMV_dir5_Plot <- ggsurvplot(gvhddonorcmv, pval = TRUE,
-           pval.coord = c(2100, 1),
+survdiff(formula=s.dfsgvhd~disgroup, data=bmt_df[bmt_df$deltaa==1, ])
+
+bydis_dir5_plot <- ggsurvplot(survfit.bydg,
            conf.int = F,
-           surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by donor CMV statu",
-       xlab= "Time (in days)")
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by hospital in patients who develop aGVHD")
 
+#by FAB classification
+survfit.byfab <- survfit(s.dfsgvhd ~ fab,
+                         data = bmt_df[bmt_df$deltaa==1, ],
+                         conf.type = "log-log")
 
-```
+survdiff(formula=s.dfsgvhd~fab, data=bmt_df[bmt_df$deltaa==1, ])
 
-```{r Directive 6, echo = F}
-
-s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
-
-summary(coxph(s_gvhd ~ mtx + donorcmv + strata(hospital), data = bmt_df))
-
-survfit_gvhdmtx <- survfit(s_gvhd ~ mtx, data=bmt_df, conf.type="log-log")
-
-
-byMTX_dir6_plot <- ggsurvplot(survfit_gvhdmtx,  pval = TRUE,
-           pval.coord = c(2100, 1),
+byfab_dir5_plot <- ggsurvplot(survfit.bydg,
            conf.int = F,
-           surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate")
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by FAB classification in patients with aGVHD")
 
-summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
+#by mtx
+survfit.bymtx <- survfit(s.dfsgvhd ~ mtx,
+                            data = bmt_df[bmt_df$deltaa==1, ],
+                            conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~mtx, data=bmt_df[bmt_df$deltaa==1, ])
+
+bymtx_dir5_plot <- ggsurvplot(survfit.bymtx,
+           conf.int = F,
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier disease-free survival est,",
+       subtitle = "by MTX status in patients who develop aGVHD")
+
+#by hospital
+survfit.byhospital <- survfit(s.dfsgvhd ~ hospital,
+                   data = bmt_df[bmt_df$deltaa==1, ],
+                   conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~hospital, data=bmt_df[bmt_df$deltaa==1, ])
+
+byhospital_dir5_plot <- ggsurvplot(survfit.byhospital,
+           conf.int = F,
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier disease-free survival est,",
+       subtitle = "by hospital in patients who develop aGVHD")
+
+byhospital_dir5_plot
 
 library(corrplot)
 library(RColorBrewer)
@@ -525,11 +571,15 @@ ggsave(filename = "Plots/byDonerMale_dir3_plot.png", byDonerMale_dir3_plot)
 ggsave(filename = "Plots/byDonerCMV_dir3_plot.png", byDonerCMV_dir3_plot)
 ggsave(filename = "Plots/byHosptial_dir3_plot.png", byHosptial_dir3_plot)
 ggsave(filename = "Plots/byMTX_dir3_plot.png", byMTX_dir3_plot)
-ggsave(filename = "Plots/byMTX_dir5_Plot.png", byMTX_dir5_Plot)
-ggsave(filename = "Plots/byCMV_dir5_Plot.png", byCMV_dir5_Plot)
-ggsave(filename = "Plots/byHosptial_dir5_Plot.png", byHosptial_dir5_Plot)
-ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
+ggsave(filename = "Plots/bymale_dir5_Plot.png", bymale_dir5_plot)
+ggsave(filename = "Plots/bydonormale_dir5_Plot.png", bydonormale_dir5_plot)
+ggsave(filename = "Plots/bycmv_dir5_Plot.png", bycmv_dir5_plot)
+ggsave(filename = "Plots/bydonorcmv_dir5_Plot.png", bydonorcmv_dir5_plot)
+ggsave(filename = "Plots/bydis_dir5_Plot.png", bydis_dir5_plot)
+ggsave(filename = "Plots/byfab_dir5_Plot.png", byfab_dir5_plot)
+ggsave(filename = "Plots/bymtx_dir5_Plot.png", bymtx_dir5_plot)
+ggsave(filename = "Plots/byhospital_dir5_Plot.png", byhospital_dir5_plot)
 ggsave(filename = "Plots/byMTX_dir6_plot.png", byMTX_dir6_plot)
-ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
+
 
 ```
