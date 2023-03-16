@@ -53,7 +53,7 @@ Given our fairly low clinical sample size of $n = 137$ patients, our tests of si
 
 ## Test Statistics
 
-To test the survival time and onset time differences between groups, we will be using the log-rank test as an ###*a priori*### choice of statistic based on what we believe are appropriate scientific considerations. We don't believe there to be any basis on which to weigh early terminations more heavily, thus we do not see the Gehan-Breslow generalized Wilcoxon statistic as appropriate. Additionally, we expect to see proportional hazards among our disease and FAB groups because why would we learn those methods all quarter and not get a data set where we can utilize those skills. Thus, the log-rank test statistic will be used as our method of nonparametric testing of equal survivorship between groups.
+To test the survival time and onset time differences between groups, we will be using the log-rank test as an *a priori* choice of statistic based on what we believe are appropriate scientific considerations. We don't believe there to be any basis on which to weigh early terminations more heavily, thus we do not see the Gehan-Breslow generalized Wilcoxon statistic as appropriate. Additionally, we expect to see proportional hazards among our disease and FAB groups because why would we learn those methods all quarter and not get a data set where we can utilize those skills. Thus, the log-rank test statistic will be used as our method of nonparametric testing of equal survivorship between groups.
 
 # Results and Discussion
 
