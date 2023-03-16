@@ -68,9 +68,47 @@ When attempting to *estimate the disease-free survival time for patients enrolle
 
 $2 \times (657.77 − 650.19) ≈ 15.16$
 
-which signifies with a p-value $9.88 \times 10^{-5}$ that the Weibull distribution is not a appropriate simplification of the generalized gamma with our data. We can see that with the scale $p = 0.59 \space [0.48, .70]$ and shape $\lambda = .0007 \space [0004, 0009]$ parameters of the Weibull distribution resulting in a large maximized loglikelihood value of -657.77, we do not have a good fit. However, the parameter estimations of the gamma don't fair much better given the maximized loglikelihood value of -650.19. The parameters for the generalized gamma are as follows, $\mu = 6.23 \space [5.52, 6.94]$ $\sigma = 2.31 \space [1.89, 2.74]$, and $Q = -0.4 \space [-1.06, .27]$. Given the poor likelihood values for even the most robut of parametric estimators, we elect a non-parametric estimate in the form of the Kaplan-Meier estimator. This allows us to provide estimates like the median survival time as described prior.
+which signifies with a p-value $9.88 \times 10^{-5}$ that the Weibull distribution is not an appropriate simplification of the generalized gamma with our data. We can see that with the scale $p = 0.59 \space [0.48, .70]$ and shape $\lambda = .0007 \space [0004, 0009]$ parameters of the Weibull distribution resulting in a large maximized loglikelihood value of -657.77, we do not have a good fit. However, the parameter estimations of the gamma don't fair much better given the maximized loglikelihood value of -650.19. The parameters for the generalized gamma are as follows, $\mu = 6.23 \space [5.52, 6.94]$ $\sigma = 2.31 \space [1.89, 2.74]$, and $Q = -0.4 \space [-1.06, .27]$. Given the poor likelihood values for even the most robust of parametric estimators, we elect a non-parametric estimate in the form of the Kaplan-Meier estimator. This allows us to provide estimates like the median survival time as described prior.
 
-## Proportional Hazards
+## Directive 2
+
+### Disease
+
+Subgrouping by disease groups, we note some interesting features that indicate ease of analysis by means of proportional hazards visible in the survival curves in *figure 3*. According to the table in *table 1*, we notice approximately equal counts of each disease group in our patient sample, with an average of 46 patients per group. The occurrence of censoring is also retentively proportional between disease groups, with an average of 28 censored observations per group. Summary statistics such as mean age per group were calculated in the same table. Proportions of groups with biomarkers such as aGVHD, CMV (both in patient and donors), and MTX, were calculated to identify potential associations between these baseline measurements and the disease grouping classification. A chi-square test of independence was preformed between selected variables which we determined to differ more so than just random noise we would expect from a low sample data set. These variables we tested against disease group were *mean age, count males, count CMV, count MTX, count Hospital, count donor males, and count donor CMV*. Of these covariates, only *count MTX* and *count Hospital* had significant p-values of .045 and .0099 respectively, while only *count Hospital* had a p-value below our family-wise error rate corrected significance level $\alpha = .0125$. Thus, we determine this variable is associated with disease grouping.
+
+Looking at our plot *(figure 3)* we see Disease Group 2 has the highest median survival time by a wide margin at **2204 [641, NA] days**. Disease Groups 1 and 3 have much lower median survival times at **418 [192, NA] days** and **183 [390] days** respectively. Using the logrank test of differences in subgroups, we observed a **p-value of .001**, which is lower than our family-wise error rate corrected significance level, and thus we reject the null hypothesis and say there is evidence of association between disease grouping and survival time.
+
+### FAB
+
+Subgrouping by FAB leukemia classification, we note even better indications of proportional hazards between groups as seen in *figure 4*. According to the table in *table 2*, the dichotomy of distribution between these two classifications is a bit more apparent. We observe 92 patients NOT in the FAB classification of leukemia, and  45 patients with this classification. Censoring is approximately equal in counts, with 48 observed deaths or relapses in our FAB 0 classification, and 35 in our FAB 1 group. Again, summary statistics such as mean age per group were calculated in a *table 2*. Proportions of groups with biomarkers such as aGVHD, CMV (both in patient and donors), and MTX, were calculated to identify potential associations between these baseline measurements and FAB leukemia grouping classification. A chi-square test of independence was preformed between selected variables which we determined to differ more so than just random noise we would expect from a low sample data set. These variables we tested against disease group were *mean age, count males, count CMV, count MTX, count Hospital, count donor males, and count donor CMV*. Of these covariates, only *count MTX* and *count donor CMV* had significant p-values of .06 and .09 respectively, but neither of these had a p-value below our family-wise error rate corrected significance level $\alpha = .0125$. Thus, we determine no variables are associated with FAB leukemia classification.
+
+Looking at our plot *(figure 4)* we see FAB Classification 0 has the highest median survival time at **704 [390, NA] days**. FAB Classification 1 has the lower median survival time at **272 [164, 456] days**. Using the logrank test of differences in subgroups, we observed a **p-value of .0037**, which is lower than our family-wise error rate corrected significance level, and thus we reject the null hypothesis and say there is evidence of association between FAB classification and survival time.
+
+## Directive 3
+
+In *figures 5-10*, our team plotted every meaningful factor grouping to identify potential associated differences in disease-free survival. We observed two different trends, 
+
+## Directive 4
+
+In order to characterize the relationship between occurrence of aGVHD after transplantation and disease-free survival, we fit the following cox-proportional hazards model adjusting for age, patient cmv and donor cmv status stratifying by hospital. 
+
+$h(t|\text{aGVHD}, \text{age}, \text{cmv}, \text{donorcmv}, \text{hospital}) = h_0(t |  \text{hospital}) e^{β_1aGVHD + β_2age + β_3cmv + β_4donorcmv}$
+
+Where $h0(t|\text{hospital})$ denotes the distinct baseline hazard function at time t corresponding to each hospital. 
+
+The hazard of relapse is estimated to be approximately **39.8% lower** in patients who developed acute GVHD post-transplantation, with fixed age, patient and donor CMV immune status and hospital. The hazard ratio is estimated to be **0.602** with an associated **95% CI of (0.234, 1.551)**. However, this association was not found to be statistically significant at $\alpha = .1$. 
+
+## Directive 5
+
+We analyzed the baseline characteristics and disease-free survival in the subset of the study population who developed acute GVHD in the observation period. We fit a survival object to this subpopulation and used log-rank tests to determine if baseline characteristics, including patient sex, donor sex, patient CMV immune status, donor CMV immune status, disease group, FAB classification, methotrexate prophylaxis or hospital, were associated with differences in disease-free survival. 
+
+None of the following baseline characteristics were found to have a statistically significant association with disease-free survival among patients who developed aGVHD following transplant at a family-wise adjusted significance level of 𝛼=.0125: patient sex **(p=0.6)**, donor sex **(p=0.7)**, patient CMV status **(p=0.6)**, donor CMV status **(p=0.2)**, disease group **(p=0.08)**, FAB classification **(p=0.4)**, methotrexate prophylaxis **(p=0.3)** and hospital **(p=0.1)**. 
+
+## Directive 7
+
+
+
+## Directive 6
 
 
 
@@ -107,6 +145,13 @@ pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
 
 ```
 
+```{r fig.cap = "Table of Associations by Disease Group", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+
+kableExtra::kable(bmt_df_dis_t)
+
+```
+
+
 ```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 knitr::include_graphics("Plots/FAB_dir2_plot.png")
@@ -116,6 +161,12 @@ knitr::include_graphics("Plots/FAB_dir2_plot.png")
 ```{r fig.cap = "Disease Group Table", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 pander(survdiff(s_bmt ~ fab, data = bmt_df))
+
+```
+
+```{r fig.cap = "Table of Associations by FAB Classification", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+
+kableExtra::kable(bmt_df_fab_t)
 
 ```
 

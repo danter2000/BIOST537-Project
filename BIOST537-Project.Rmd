@@ -3,10 +3,10 @@ title: "BIOST537_Project"
 author: "Dante Ramirez, Nada Ali, Jiayu Sun, Machi Kaneko"
 date: '2023-03-13'
 output:
-  pdf_document: null
+  word_document: default
   html_document:
     df_print: paged
-  word_document: default
+  pdf_document: null
 ---
 
 ```{r setup, include=FALSE, warning = F, message = F}
@@ -122,6 +122,8 @@ sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
                                data = bmt_df,
                                conf.type = "log-log")
 
+print(sfit_bmt_byDisgroup)
+
 
 pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
 
@@ -161,8 +163,10 @@ colnames(bmt_df_dis_t) <- c("Disease Group 1",
                              "Disease Group 3")
 rownames(bmt_df_dis_t) <- colnames(bmt_df_dis)
 bmt_df_dis_t <- bmt_df_dis_t[c(-1),]
+rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", " ")
+rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", "")
 
-kable(bmt_df_dis_t)
+kableExtra::kable(bmt_df_dis_t)
 
 # For test statistics
 test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
@@ -177,6 +181,8 @@ test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
 sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
                           data = bmt_df,
                           conf.type = "log-log")
+
+print(sfit_bmt_byFAB)
 
 pander(survdiff(s_bmt ~ fab, data = bmt_df))
 
@@ -214,12 +220,23 @@ colnames(bmt_df_fab_t) <- c("FAB Classification 1",
                              "FAB Classification 2")
 rownames(bmt_df_fab_t) <- colnames(bmt_df_fab)
 bmt_df_fab_t <- bmt_df_fab_t[c(-1),]
+rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", " ")
+rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", "")
 
 kable(bmt_df_fab_t)
 
 test_stats_fabgroup <- comp(ten(sfit_bmt_byFAB))
 
 pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
+
+chisq.test(bmt_df$fab, bmt_df$age)
+chisq.test(bmt_df$fab, bmt_df$male)
+chisq.test(bmt_df$fab, bmt_df$cmv)
+chisq.test(bmt_df$fab, bmt_df$hospital)
+chisq.test(bmt_df$fab, bmt_df$mtx)
+chisq.test(bmt_df$fab, bmt_df$donorage)
+chisq.test(bmt_df$fab, bmt_df$donormale)
+chisq.test(bmt_df$fab, bmt_df$donorcmv)
 
 ```
 
@@ -483,5 +500,6 @@ ggsave(filename = "Plots/byHosptial_dir5_Plot.png", byHosptial_dir5_Plot)
 ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
 ggsave(filename = "Plots/byMTX_dir6_plot.png", byMTX_dir6_plot)
 ggsave(filename = "Plots/byDonorCMV_dir5_Plot.png", byDonorCMV_dir5_Plot)
+save_kable(kabledis_dir2_table, file = "Plots/kabledis_dir2_plot.png")
 
 ```

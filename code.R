@@ -20,7 +20,6 @@ bmt_df$agediagnosis <- bmt_df$age - ((bmt_df$waittime)/365)
 # create age at event (death, relapse or censoring) in years
 bmt_df$ageevent <- bmt_df$agediagnosis + ((bmt_df$tdfs)/365)
 
-
 # Creating Survival Object w/ delayed entry
 s_bmt_de <- with(bmt_df, Surv(agediagnosis, ageevent, deltadfs==1))
 
@@ -30,6 +29,8 @@ s_bmt <- with(bmt_df, Surv(tdfs, deltadfs == 1))
 sfit_bmt <- survfit(s_bmt ~ 1, data = bmt_df, conf.type = "log-log")
 
 sfit_weibull <- flexsurvreg(s_bmt ~ 1, dist = "weibull", data = bmt_df)
+
+fitparametric(s_bmt, dist = "weibull")
 
 sfit_gg <- flexsurvreg(s_bmt ~ 1, dist = "gengamma", data = bmt_df)
 
@@ -60,9 +61,35 @@ summary(sfit_bmt)$table
 fit_weibull <- fitparametric(s_bmt, dist = "weibull")
 fit_ggamma <- fitparametric(s_bmt, dist = "gengamma")
 
+# Log likelihood p-value to compare weibull and gengamma
+1 - pchisq(q = 2*(-650.19 - (-657.77 )), df = 1)
+
 # p-value from likelihood ratio test comparing the weibull to ggamma
 1 - pchisq(2 * (fit_ggamma$loglik - fit_weibull$loglik), df=1)
 
+bmt_df_summary <- bmt_df %>%
+  summarise(mean_age = round(mean(age), 3),
+            sd_age = round(sd(age), 3),
+            count_males = sum(male),
+            prop_males = round(sum(male) / length(male), 3),
+            count_females = length(male) - sum(male),
+            prop_females = round((length(male) - sum(male)) / length(male), 3),
+            count_cmv = sum(cmv),
+            prop_cmv = round(sum(cmv) / length(cmv), 3),
+            count_mtx = sum(mtx),
+            prop_mtx = round(sum(mtx) / length(mtx), 3),
+            count_hospital = sum(hospital),
+            mean_donor_age = round(mean(donorage), 3),
+            sd_donor_age = round(sd(donorage), 3),
+            count_donor_males = sum(donormale),
+            prop_donor_males = round(sum(donormale) / length(donormale), 3),
+            count_donor_cmv = sum(donorcmv),
+            prop_donor_cmv = round(sum(donorcmv) / length(donorcmv), 3))
+
+# Transposed plot for easier viewing
+bmt_df_summary_t <- transpose(bmt_df_summary)
+
+kable(bmt_df_summary)
 
 # Survival Object based on disease subgrouping
 sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
@@ -108,11 +135,14 @@ colnames(bmt_df_dis_t) <- c("Disease Group 1",
                             "Disease Group 3")
 rownames(bmt_df_dis_t) <- colnames(bmt_df_dis)
 bmt_df_dis_t <- bmt_df_dis_t[c(-1),]
+rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", " ")
+rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", " ")
 
-kable(bmt_df_dis_t)
+kableExtra::kable(bmt_df_dis_t)
 
 # For test statistics
 test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
+
 
 # Survival Object based on "When we was FAB" classification
 sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
@@ -155,14 +185,14 @@ colnames(bmt_df_fab_t) <- c("FAB Classification 1",
                             "FAB Classification 2")
 rownames(bmt_df_fab_t) <- colnames(bmt_df_fab)
 bmt_df_fab_t <- bmt_df_fab_t[c(-1),]
+rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", " ")
+rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", " ")
 
 kable(bmt_df_fab_t)
 
 test_stats_fabgroup <- comp(ten(sfit_bmt_byFAB))
 
 pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
-
-
 
 # Survival Object based on sex subgrouping
 sfit_bmt_byMale <- survfit(s_bmt ~ male,
@@ -211,6 +241,7 @@ byDonerMale_dir3_plot <- ggsurvplot(sfit_bmt_byDonerMale,
                                     surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Donor Sex")
 
+
 # Survival Object based on CMV subgrouping of donor
 sfit_bmt_byDonerCMV <- survfit(s_bmt ~ donorcmv,
                                data = bmt_df,
@@ -225,7 +256,6 @@ byDonerCMV_dir3_plot <- ggsurvplot(sfit_bmt_byDonerCMV,
                                    conf.int = F,
                                    surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Donor CMV")
-
 
 
 # Survival Object based on hospital subgrouping
@@ -243,6 +273,7 @@ byHosptial_dir3_plot <- ggsurvplot(sfit_bmt_byHospital,
                                    surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by Hospital")
 
+byHosptial_dir3_plot
 
 # Survival Object based on mtx subgrouping
 sfit_bmt_byMTX <- survfit(s_bmt ~ mtx,
@@ -250,7 +281,7 @@ sfit_bmt_byMTX <- survfit(s_bmt ~ mtx,
                           conf.type = "log-log")
 
 # For log-rank test p-value
-byMTX_dir3_table <- pander(survdiff(s_bmt ~ mtx, data = bmt_df))
+pander(survdiff(s_bmt ~ mtx, data = bmt_df))
 
 byMTX_dir3_plot <- ggsurvplot(sfit_bmt_byMTX,
                               pval = TRUE,
@@ -259,8 +290,6 @@ byMTX_dir3_plot <- ggsurvplot(sfit_bmt_byMTX,
                               surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by MTX")
 
-
-
 summary(coxph(s_bmt ~ deltaa + age + cmv + donorcmv + strata(hospital),
               data=bmt_df))
 
@@ -268,7 +297,6 @@ s_relapse <- with(bmt_df, Surv(tdfs, deltar == 1))
 
 summary(coxph(s_relapse ~ deltaa + age + cmv + donorcmv,
               data=bmt_df))
-
 
 s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
 
@@ -328,6 +356,13 @@ byMTX_dir6_plot <- ggsurvplot(survfit_gvhdmtx,  pval = TRUE,
   labs(title = "Kaplan-Meier survival estimate")
 
 summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
+
+library(corrplot)
+library(RColorBrewer)
+M <-cor(bmt_df)
+corrplot(M, type="upper", order="hclust",
+         col=brewer.pal(n=8, name="RdYlBu"))
+
 
 
 summary(coxph(s_bmt ~ deltap + age + donorcmv + strata(hospital),
