@@ -436,6 +436,8 @@ survdiff(formula=s.dfsgvhd~male, data=bmt_df[bmt_df$deltaa==1, ])
 
 bymale_dir5_plot <- ggsurvplot(survfit.bymale,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier GVHD survival est,",
        subtitle = "by sex in patients with aGVHD")
@@ -449,6 +451,8 @@ survdiff(formula=s.dfsgvhd~donormale, data=bmt_df[bmt_df$deltaa==1, ])
 
 bydonormale_dir5_plot <- ggsurvplot(survfit.bydonormale,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier GVHD survival est,",
        subtitle = "by donor sex in patients with aGVHD")
@@ -462,6 +466,8 @@ survdiff(formula=s.dfsgvhd~cmv, data=bmt_df[bmt_df$deltaa==1, ])
 
 bycmv_dir5_plot <- ggsurvplot(survfit.bycmv,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier disease-free survival est,",
        subtitle = "by patient CMV status in patients who develop aGVHD")
@@ -475,6 +481,8 @@ survdiff(formula=s.dfsgvhd~donorcmv, data=bmt_df[bmt_df$deltaa==1, ])
 
 bydonorcmv_dir5_plot <- ggsurvplot(survfit.bydonorcmv,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier GVHD survival est,",
        subtitle = "by donor CMV status in patients with aGVHD")
@@ -488,6 +496,8 @@ survdiff(formula=s.dfsgvhd~disgroup, data=bmt_df[bmt_df$deltaa==1, ])
 
 bydis_dir5_plot <- ggsurvplot(survfit.bydg,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier GVHD survival est,",
        subtitle = "by hospital in patients who develop aGVHD")
@@ -501,6 +511,8 @@ survdiff(formula=s.dfsgvhd~fab, data=bmt_df[bmt_df$deltaa==1, ])
 
 byfab_dir5_plot <- ggsurvplot(survfit.bydg,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier GVHD survival est,",
        subtitle = "by FAB classification in patients with aGVHD")
@@ -514,6 +526,8 @@ survdiff(formula=s.dfsgvhd~mtx, data=bmt_df[bmt_df$deltaa==1, ])
 
 bymtx_dir5_plot <- ggsurvplot(survfit.bymtx,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier disease-free survival est,",
        subtitle = "by MTX status in patients who develop aGVHD")
@@ -527,6 +541,8 @@ survdiff(formula=s.dfsgvhd~hospital, data=bmt_df[bmt_df$deltaa==1, ])
 
 byhospital_dir5_plot <- ggsurvplot(survfit.byhospital,
            conf.int = F,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
   labs(title = "Kaplan-Meier disease-free survival est,",
        subtitle = "by hospital in patients who develop aGVHD")
