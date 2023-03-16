@@ -100,17 +100,23 @@ bmt_df %>% group_by(hospital) %>% summarise(mtx = sum(mtx)) %>% kable()
 
 In order to characterize the relationship between occurrence of aGVHD after transplantation and disease-free survival, we fit the following cox-proportional hazards model adjusting for age, patient cmv and donor cmv status stratifying by hospital. 
 
-$h(t|\text{aGVHD}, \text{age}, \text{cmv}, \text{donorcmv}, \text{hospital}) = h_0(t |  \text{hospital}) e^{β_1aGVHD + β_2age + β_3cmv + β_4donorcmv}$
+$h(t| \text{gvhd.tv(t)}, \text{age}, \text{cmv}, \text{donorcmv}, \text{hospital}) = h_0(t |  \text{hospital}) e^{β_1gvhd.tv(t) + β_2age + β_3cmv + β_4donorcmv}$
 
-Where $h0(t|\text{hospital})$ denotes the distinct baseline hazard function at time t corresponding to each hospital. 
+where gvhd.tv(t) is the time-varying covariate for aGVHD status at time t and $h0(t|\text{hospital})$ denotes the distinct baseline hazard function at time t corresponding to each hospital. Because in this model we estimate the hazard of the composite outcome of relapse and death, we did not perform competing-risk analysis.
 
-The hazard of relapse is estimated to be approximately **39.8% lower** in patients who developed acute GVHD post-transplantation, with fixed age, patient and donor CMV immune status and hospital. The hazard ratio is estimated to be **0.602** with an associated **95% CI of (0.234, 1.551)**. However, this association was not found to be statistically significant at $\alpha = .1$. 
+When estimating the association of aGVHD and risk of relapse, we employed the Fine-Gray model to account for death as a competing risk to risk of relapse. We used the crr function in R. 
+
+We estimate that individuals who developed acute GVHD by a given time had a 59% higher hazard of death or relapse than individuals who did not develop acute GVHD by that time, with fixed age, patient and donor CMV immune status and hospital.. The estimated hazard of relapse or death comparing individuals who developed acute GVHD by a given time to individuals who did not develop acute GVHD by that time is **1.59 (95% CI: 0.89, 2.83, p=0.116)**. 
+
+The hazard of relapse is estimated to be approximately **35.8% lower** in patients who developed acute GVHD by a given time compared to those who did not develop acute GVHD by that time, accounting for death as a competing risk, with fixed age, patient and donor CMV immune status and hospital. The hazard ratio is estimated to be **0.642** with an associated **95% CI of (0.242, 1.70, p=0.37)**. 
+
+Given these findings, we can conclude that there is no evidence to suggest that the development of acute GVHD is an important prognostic event. 
 
 ## Directive 5
 
 We analyzed the baseline characteristics and disease-free survival in the subset of the study population who developed acute GVHD in the observation period. We fit a survival object to this subpopulation and used log-rank tests to determine if baseline characteristics, including patient sex, donor sex, patient CMV immune status, donor CMV immune status, disease group, FAB classification, methotrexate prophylaxis or hospital, were associated with differences in disease-free survival.
 
-None of the following baseline characteristics were found to have a statistically significant association with disease-free survival among patients who developed aGVHD following transplant at a family-wise adjusted significance level of 𝛼=.0125: patient sex **(p=0.6)**, donor sex **(p=0.7)**, patient CMV status **(p=0.6)**, donor CMV status **(p=0.2)**, disease group **(p=0.08)**, FAB classification **(p=0.4)**, methotrexate prophylaxis **(p=0.3)** and hospital **(p=0.1)**. 
+None of the following baseline characteristics were found to have a statistically significant association with disease-free survival among patients who developed aGVHD following transplant at a family-wise adjusted significance level of 𝛼=.0125 using log-rank test: patient sex **(p=0.6)**, donor sex **(p=0.7)**, patient CMV status **(p=0.6)**, donor CMV status **(p=0.2)**, disease group **(p=0.08)**, FAB classification **(p=0.4)**, methotrexate prophylaxis **(p=0.3)** and hospital **(p=0.1)**. 
 
 We noted that among the subgroup of patients who developed acute GVHD, death and relapse events occurred early in the time course. We also noted that many of the Kaplan-Meier curves cross early in the time course. Given these observations, we recognized that the proportional hazards assumption was not met, and that use of the log-rank test may not appropriately test the difference in disease-free survival based on the baseline characteristics. Use of the Gehan-Breslow-Wilcoxon test was considered. While this test does not require consistent hazard ratios, the assumption that one group has a consistently higher hazard must hold. This was not deemed appropriate as most survival curves cross. In future studies the Fleming Harrington test could be applied.
 

@@ -439,7 +439,7 @@ bymale_dir5_plot <- ggsurvplot(survfit.bymale,
            pval = TRUE,
            pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
-  labs(title = "Kaplan-Meier GVHD survival est,",
+  labs(title = "Kaplan-Meier aGVHD survival est,",
        subtitle = "by sex in patients with aGVHD")
 
 #by donor sex
@@ -454,7 +454,7 @@ bydonormale_dir5_plot <- ggsurvplot(survfit.bydonormale,
            pval = TRUE,
            pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
-  labs(title = "Kaplan-Meier GVHD survival est,",
+  labs(title = "Kaplan-Meier aGVHD survival est,",
        subtitle = "by donor sex in patients with aGVHD")
 
 #by cmv
@@ -484,7 +484,7 @@ bydonorcmv_dir5_plot <- ggsurvplot(survfit.bydonorcmv,
            pval = TRUE,
            pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
-  labs(title = "Kaplan-Meier GVHD survival est,",
+  labs(title = "Kaplan-Meier aGVHD survival est,",
        subtitle = "by donor CMV status in patients with aGVHD")
 
 #by disease group
@@ -499,7 +499,7 @@ bydis_dir5_plot <- ggsurvplot(survfit.bydg,
            pval = TRUE,
            pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
-  labs(title = "Kaplan-Meier GVHD survival est,",
+  labs(title = "Kaplan-Meier aGVHD survival est,",
        subtitle = "by hospital in patients who develop aGVHD")
 
 #by FAB classification
@@ -514,7 +514,7 @@ byfab_dir5_plot <- ggsurvplot(survfit.bydg,
            pval = TRUE,
            pval.coord = c(1700, 1),
            xlab = "Time (in days)") + 
-  labs(title = "Kaplan-Meier GVHD survival est,",
+  labs(title = "Kaplan-Meier aGVHD survival est,",
        subtitle = "by FAB classification in patients with aGVHD")
 
 #by mtx
@@ -558,14 +558,51 @@ corrplot(M, type="upper", order="hclust",
 
 ```
 
+```{r Directive 6, echo = F}
+
+s.agvhd <- with(bmt_df, Surv(ta, deltaa))
+
+km6 <- survfit(s.agvhd ~ mtx, data = bmt_df, conf.type = "log-log")
+
+bymxt_dir6_plot <- ggsurvplot(km6,
+           conf.int = T,
+           pval = TRUE,
+           pval.coord = c(1700, 1),
+           xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier aGVHD survival est,",
+       subtitle = "by time from transplant until onset of aGVHD")
+
+mod6 <- coxph(s.agvhd ~ mtx + as.factor(hospital), data = bmt_df)
+
+summary(mod6)
+
+```
+
+
 ```{r Directive 7, echo = F}
 
-summary(coxph(s_bmt ~ deltap + age + donorcmv + strata(hospital),
-              data = bmt_df))
+bmt.tvc.tp1 <- tmerge(data1 = bmt_df, data2 = bmt_df, id = id,
+                      event = event(tdfs, deltadfs),
+                      tp.tv= tdc(tp))
 
-#Is it associated with a decreased risk of relapse? - no
-summary(coxph(s_relapse ~ deltap + age + donorcmv + strata(hospital),
-              data = bmt_df))
+s.dfs.tv <- with(bmt.tvc.tp1, Surv(tstart, tstop, event))
+
+model7.1 <- coxph(s.dfs.tv ~ tp.tv + age + cmv + donorcmv + strata(hospital),
+                  data = bmt.tvc.tp1)
+
+summary(model7.1)
+
+
+bmt.tvc.tp2 <- tmerge(data1 = bmt_df, data2 = bmt_df, id = id,
+                      event = event(tdfs, deltar),
+                      tp.tv= tdc(tp))
+
+s.relapse.tv <- with(bmt.tvc.tp2, Surv(tstart, tstop, event))
+
+model7.2 <- coxph(s.relapse.tv ~ tp.tv + age + cmv + donorcmv + strata(hospital),
+                  data = bmt.tvc.tp2)
+
+summary(model7.2)
 
 ```
 
@@ -595,7 +632,6 @@ ggsave(filename = "Plots/bydis_dir5_Plot.png", bydis_dir5_plot)
 ggsave(filename = "Plots/byfab_dir5_Plot.png", byfab_dir5_plot)
 ggsave(filename = "Plots/bymtx_dir5_Plot.png", bymtx_dir5_plot)
 ggsave(filename = "Plots/byhospital_dir5_Plot.png", byhospital_dir5_plot)
-
-
+ggsave(filename = "Plots/bymxt_dir6_Plot.png", bymxt_dir6_plot)
 
 ```
