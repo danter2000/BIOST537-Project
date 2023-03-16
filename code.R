@@ -9,6 +9,8 @@ library(kableExtra)
 library(pander)
 library(survminer)
 library(data.table)
+library(mstate)
+library(cmprsk)
 
 bmt_df <- read_csv(file = "~/BIOST537/BIOST537-Project/bmt.csv")
 
@@ -19,6 +21,7 @@ bmt_df$agediagnosis <- bmt_df$age - ((bmt_df$waittime)/365)
 
 # create age at event (death, relapse or censoring) in years
 bmt_df$ageevent <- bmt_df$agediagnosis + ((bmt_df$tdfs)/365)
+
 
 # Creating Survival Object w/ delayed entry
 s_bmt_de <- with(bmt_df, Surv(agediagnosis, ageevent, deltadfs==1))
@@ -96,6 +99,8 @@ sfit_bmt_byDisgroup <- survfit(s_bmt ~ disgroup,
                                data = bmt_df,
                                conf.type = "log-log")
 
+print(sfit_bmt_byDisgroup)
+
 
 pander(survdiff(s_bmt ~ disgroup, data = bmt_df))
 
@@ -136,7 +141,7 @@ colnames(bmt_df_dis_t) <- c("Disease Group 1",
 rownames(bmt_df_dis_t) <- colnames(bmt_df_dis)
 bmt_df_dis_t <- bmt_df_dis_t[c(-1),]
 rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", " ")
-rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", " ")
+rownames(bmt_df_dis_t) <- str_replace(rownames(bmt_df_dis_t), "_", "")
 
 kableExtra::kable(bmt_df_dis_t)
 
@@ -148,6 +153,8 @@ test_stats_disgroup <- comp(ten(sfit_bmt_byDisgroup))
 sfit_bmt_byFAB <- survfit(s_bmt ~ fab,
                           data = bmt_df,
                           conf.type = "log-log")
+
+print(sfit_bmt_byFAB)
 
 pander(survdiff(s_bmt ~ fab, data = bmt_df))
 
@@ -181,18 +188,28 @@ bmt_df_fab <- bmt_df %>%
 
 # Transposed plot for easier viewing
 bmt_df_fab_t <- transpose(bmt_df_fab)
-colnames(bmt_df_fab_t) <- c("FAB Classification 1",
-                            "FAB Classification 2")
+colnames(bmt_df_fab_t) <- c("FAB Classification 0",
+                            "FAB Classification 1")
 rownames(bmt_df_fab_t) <- colnames(bmt_df_fab)
 bmt_df_fab_t <- bmt_df_fab_t[c(-1),]
 rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", " ")
-rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", " ")
+rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", "")
 
 kable(bmt_df_fab_t)
 
 test_stats_fabgroup <- comp(ten(sfit_bmt_byFAB))
 
 pchisq(q = (2.6559)^2, df=1, lower.tail=FALSE)
+
+chisq.test(bmt_df$fab, bmt_df$age)
+chisq.test(bmt_df$fab, bmt_df$male)
+chisq.test(bmt_df$fab, bmt_df$cmv)
+chisq.test(bmt_df$fab, bmt_df$hospital)
+chisq.test(bmt_df$fab, bmt_df$mtx)
+chisq.test(bmt_df$fab, bmt_df$donorage)
+chisq.test(bmt_df$fab, bmt_df$donormale)
+chisq.test(bmt_df$fab, bmt_df$donorcmv)
+
 
 # Survival Object based on sex subgrouping
 sfit_bmt_byMale <- survfit(s_bmt ~ male,
@@ -263,6 +280,8 @@ sfit_bmt_byHospital <- survfit(s_bmt ~ hospital,
                                data = bmt_df,
                                conf.type = "log-log")
 
+sfit_bmt_byHospital
+
 # For log-rank test p-value
 pander(survdiff(s_bmt ~ hospital, data = bmt_df))
 
@@ -274,6 +293,8 @@ byHosptial_dir3_plot <- ggsurvplot(sfit_bmt_byHospital,
   labs(title = "Kaplan-Meier survival estimate, by Hospital")
 
 byHosptial_dir3_plot
+
+bmt_df %>% group_by(hospital) %>% summarise(mtx = sum(mtx)) %>% kable()
 
 # Survival Object based on mtx subgrouping
 sfit_bmt_byMTX <- survfit(s_bmt ~ mtx,
@@ -290,85 +311,173 @@ byMTX_dir3_plot <- ggsurvplot(sfit_bmt_byMTX,
                               surv.median.line = "hv") + 
   labs(title = "Kaplan-Meier survival estimate, by MTX")
 
-summary(coxph(s_bmt ~ deltaa + age + cmv + donorcmv + strata(hospital),
-              data=bmt_df))
+#create long dataset with time-varying GVHD variable
+bmt.tvc <- tmerge(data1=bmt_df, data2=bmt_df, id=id,
+                  dfs=event(tdfs, deltadfs), gvhd.tv=tdc(ta))
 
-s_relapse <- with(bmt_df, Surv(tdfs, deltar == 1))
+#create survival object for disease-free survival with time-varying GVHD variable
+surv.bmt.tv = with(bmt.tvc,
+                   Surv(tstart, tstop, dfs))
 
-summary(coxph(s_relapse ~ deltaa + age + cmv + donorcmv,
-              data=bmt_df))
+summary(coxph(surv.bmt.tv ~ gvhd.tv + age + cmv + donorcmv + strata(hospital),
+              data=bmt.tvc))
 
-s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
+#Is it associated with a decreased risk of relapse?
+#create long dataset for relapse with time-varying GVHD variable
+bmtrelapse.tvc <- tmerge(data1 = bmt_df, data2 = bmt_df, id=id,
+                         dfs=event(tdfs, deltar), gvhd.tv=tdc(ta))
 
-gvhd <- survfit(s_gvhd ~ mtx, data = bmt_df, conf.type = "log-log")
+#create survival object for relapse with time varying GVHD variable
+surv.relapse.tv = with(bmtrelapse.tvc, Surv(tstart, tstop, dfs))
 
-byMTX_dir5_Plot <- ggsurvplot(gvhd, pval = TRUE,
-                              pval.coord = c(2100, 1),
+#competing risk
+attach(bmtrelapse.tvc)
+
+cov.matrix <- model.matrix(~gvhd.tv + age + cmv + donorcmv + strata(hospital))
+
+head(cov.matrix)
+
+#relapse risk: relapse
+result.relapse.crr <- crr((bmtrelapse.tvc$tstop-bmtrelapse.tvc$tstart),
+                          deltar, cov1 = cov.matrix[, -1], failcode=1)
+
+summary(result.relapse.crr)
+
+#competing risk: death
+result.death.crr <- crr((bmt.tvc$tstop - bmt.tvc$tstart), deltadfs,
+                        cov1=cov.matrix[,-1], failcode=1)
+
+summary(result.death.crr)
+
+
+#survival object for those who develop aGVHD
+s.dfsgvhd <- with(bmt_df[bmt_df$deltaa==1, ], Surv(tdfs, deltadfs==1))
+
+#by patient sex
+survfit.bymale <- survfit(s.dfsgvhd ~ male,
+                          data = bmt_df[bmt_df$deltaa==1, ],
+                          conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~male, data=bmt_df[bmt_df$deltaa==1, ])
+
+bymale_dir5_plot <- ggsurvplot(survfit.bymale,
+                               conf.int = F,
+                               pval = TRUE,
+                               pval.coord = c(1700, 1),
+                               xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by sex in patients with aGVHD")
+
+#by donor sex
+survfit.bydonormale <- survfit(s.dfsgvhd ~ donormale,
+                               data = bmt_df[bmt_df$deltaa==1, ],
+                               conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~donormale, data=bmt_df[bmt_df$deltaa==1, ])
+
+bydonormale_dir5_plot <- ggsurvplot(survfit.bydonormale,
+                                    conf.int = F,
+                                    pval = TRUE,
+                                    pval.coord = c(1700, 1),
+                                    xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by donor sex in patients with aGVHD")
+
+#by cmv
+survfit.bycmv <- survfit(s.dfsgvhd ~ cmv,
+                         data = bmt_df[bmt_df$deltaa==1, ],
+                         conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~cmv, data=bmt_df[bmt_df$deltaa==1, ])
+
+bycmv_dir5_plot <- ggsurvplot(survfit.bycmv,
                               conf.int = F,
-                              surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by MTX",
-       xlab= "Time (in days)")
+                              pval = TRUE,
+                              pval.coord = c(1700, 1),
+                              xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier disease-free survival est,",
+       subtitle = "by patient CMV status in patients who develop aGVHD")
 
-gvhdcmv <- survfit(s_gvhd ~ cmv,
-                   data = bmt_df,
-                   conf.type = "log-log")
+#by donorcmv
+survfit.bydonorcmv <- survfit(s.dfsgvhd ~ donorcmv,
+                              data = bmt_df[bmt_df$deltaa==1, ],
+                              conf.type = "log-log")
 
-byCMV_dir5_Plot <- ggsurvplot(gvhdcmv, pval = TRUE,
-                              pval.coord = c(2100, 1),
-                              surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by recipient CMV status",
-       xlab= "Time (in days)")
+survdiff(formula=s.dfsgvhd~donorcmv, data=bmt_df[bmt_df$deltaa==1, ])
 
-gvhdhospital <- survfit(s_gvhd ~ hospital,
-                        data = bmt_df,
+bydonorcmv_dir5_plot <- ggsurvplot(survfit.bydonorcmv,
+                                   conf.int = F,
+                                   pval = TRUE,
+                                   pval.coord = c(1700, 1),
+                                   xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by donor CMV status in patients with aGVHD")
+
+#by disease group
+survfit.bydg <- survfit(s.dfsgvhd ~ disgroup,
+                        data = bmt_df[bmt_df$deltaa==1, ],
                         conf.type = "log-log")
 
-byHosptial_dir5_Plot <- ggsurvplot(gvhdhospital, pval = TRUE,
-                                   pval.coord = c(2100, 1),
-                                   conf.int = F,
-                                   surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by Hospital",
-       xlab= "Time (in days)")
+survdiff(formula=s.dfsgvhd~disgroup, data=bmt_df[bmt_df$deltaa==1, ])
 
-gvhddonorcmv <- survfit(s_gvhd ~ donorcmv,
-                        data = bmt_df,
-                        conf.type = "log-log")
-
-byDonorCMV_dir5_Plot <- ggsurvplot(gvhddonorcmv, pval = TRUE,
-                                   pval.coord = c(2100, 1),
-                                   conf.int = F,
-                                   surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate, by donor CMV statu",
-       xlab= "Time (in days)")
-
-
-s_gvhd <- with(bmt_df, Surv(ta, deltaa == 1))
-
-summary(coxph(s_gvhd ~ mtx + donorcmv + strata(hospital), data = bmt_df))
-
-survfit_gvhdmtx <- survfit(s_gvhd ~ mtx, data=bmt_df, conf.type="log-log")
-
-
-byMTX_dir6_plot <- ggsurvplot(survfit_gvhdmtx,  pval = TRUE,
-                              pval.coord = c(2100, 1),
+bydis_dir5_plot <- ggsurvplot(survfit.bydg,
                               conf.int = F,
-                              surv.median.line = "hv") + 
-  labs(title = "Kaplan-Meier survival estimate")
+                              pval = TRUE,
+                              pval.coord = c(1700, 1),
+                              xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by hospital in patients who develop aGVHD")
 
-summary(survfit_gvhdmtx, times=c(7, 14, 21, 28, 35, 42, 49, 56))
+#by FAB classification
+survfit.byfab <- survfit(s.dfsgvhd ~ fab,
+                         data = bmt_df[bmt_df$deltaa==1, ],
+                         conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~fab, data=bmt_df[bmt_df$deltaa==1, ])
+
+byfab_dir5_plot <- ggsurvplot(survfit.bydg,
+                              conf.int = F,
+                              pval = TRUE,
+                              pval.coord = c(1700, 1),
+                              xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier GVHD survival est,",
+       subtitle = "by FAB classification in patients with aGVHD")
+
+#by mtx
+survfit.bymtx <- survfit(s.dfsgvhd ~ mtx,
+                         data = bmt_df[bmt_df$deltaa==1, ],
+                         conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~mtx, data=bmt_df[bmt_df$deltaa==1, ])
+
+bymtx_dir5_plot <- ggsurvplot(survfit.bymtx,
+                              conf.int = F,
+                              pval = TRUE,
+                              pval.coord = c(1700, 1),
+                              xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier disease-free survival est,",
+       subtitle = "by MTX status in patients who develop aGVHD")
+
+#by hospital
+survfit.byhospital <- survfit(s.dfsgvhd ~ hospital,
+                              data = bmt_df[bmt_df$deltaa==1, ],
+                              conf.type = "log-log")
+
+survdiff(formula=s.dfsgvhd~hospital, data=bmt_df[bmt_df$deltaa==1, ])
+
+byhospital_dir5_plot <- ggsurvplot(survfit.byhospital,
+                                   conf.int = F,
+                                   pval = TRUE,
+                                   pval.coord = c(1700, 1),
+                                   xlab = "Time (in days)") + 
+  labs(title = "Kaplan-Meier disease-free survival est,",
+       subtitle = "by hospital in patients who develop aGVHD")
+
+byhospital_dir5_plot
 
 library(corrplot)
 library(RColorBrewer)
 M <-cor(bmt_df)
 corrplot(M, type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
-
-
-
-summary(coxph(s_bmt ~ deltap + age + donorcmv + strata(hospital),
-              data = bmt_df))
-
-#Is it associated with a decreased risk of relapse? - no
-summary(coxph(s_relapse ~ deltap + age + donorcmv + strata(hospital),
-              data = bmt_df))
 

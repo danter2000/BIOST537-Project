@@ -218,8 +218,8 @@ bmt_df_fab <- bmt_df %>%
 
 # Transposed plot for easier viewing
 bmt_df_fab_t <- transpose(bmt_df_fab)
-colnames(bmt_df_fab_t) <- c("FAB Classification 1",
-                             "FAB Classification 2")
+colnames(bmt_df_fab_t) <- c("FAB Classification 0",
+                             "FAB Classification 1")
 rownames(bmt_df_fab_t) <- colnames(bmt_df_fab)
 bmt_df_fab_t <- bmt_df_fab_t[c(-1),]
 rownames(bmt_df_fab_t) <- str_replace(rownames(bmt_df_fab_t), "_", " ")
