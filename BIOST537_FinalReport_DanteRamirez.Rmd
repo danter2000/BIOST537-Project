@@ -266,13 +266,13 @@ pander(survdiff(s_bmt ~ mtx, data = bmt_df))
 
 ```
 
-```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+```{r fig.cap = "Kaplan-Meier GVHD Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 knitr::include_graphics("Plots/bymale_dir5_plot.png")
 
 ```
 
-```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+```{r fig.cap = "Kaplan-Meier GVHD Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 knitr::include_graphics("Plots/bydonormale_dir5_plot.png")
 
@@ -284,19 +284,19 @@ knitr::include_graphics("Plots/bycmv_dir5_Plot.png")
 
 ```
 
-```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+```{r fig.cap = "Kaplan-Meier GVHD Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 knitr::include_graphics("Plots/bydonorcmv_dir5_plot.png")
 
 ```
 
-```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+```{r fig.cap = "Kaplan-Meier GVHD Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 knitr::include_graphics("Plots/bydis_dir5_plot.png")
 
 ```
 
-```{r fig.cap = "Kaplan-Meier Estimate, Disease Free Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
+```{r fig.cap = "Kaplan-Meier GVHD Survival Time", fig.show='hold',fig.align='center', out.width="60%", out.height="50%"}
 
 knitr::include_graphics("Plots/byfab_dir5_plot.png")
 
